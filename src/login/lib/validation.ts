@@ -6,8 +6,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 /** Error text for the email box, or undefined when the email looks fine. */
 export function getEmailError(email: string) {
     if (!email.trim()) return "Please enter your email.";
-    if (!EMAIL_PATTERN.test(email.trim()))
-        return "Please enter a valid email address, like you@company.com.";
+    if (!EMAIL_PATTERN.test(email.trim())) return "Please enter a valid email address.";
     return undefined;
 }
 
