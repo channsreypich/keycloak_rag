@@ -1,0 +1,274 @@
+/* ============================================================================
+   RAGStudio Keycloak theme: design tokens (Tailwind CSS v4)
+   Copied from ragstudio-web-ui/src/app/globals.css (light only).
+   Keep the shared tokens in sync with the web app. Tokens marked "auth"
+   exist only in this theme.
+   Use the utilities in components, never raw hex.
+   ========================================================================= */
+
+@import "@fontsource/gabarito/latin-400.css";
+@import "@fontsource/gabarito/latin-500.css";
+@import "@fontsource/gabarito/latin-600.css";
+@import "@fontsource/gabarito/latin-700.css";
+@import "@fontsource/gabarito/latin-800.css";
+@import "@fontsource/geist-mono/latin-500.css";
+
+@import "tailwindcss";
+
+/* Height breakpoint: compact by default, roomier on tall screens
+   (laptops have the width for the desktop layout but not the height) */
+@custom-variant tall (@media (min-height: 56.25rem));
+
+/* ---------------------------------------------------------------------------
+   1. COLOUR TOKENS
+   ------------------------------------------------------------------------ */
+:root {
+  /* surfaces */
+  --bg-page: #fafaf9;
+  --bg-card: #ffffff;
+  --bg-subtle: #f0f0ee;
+  --bg-muted: #ececea;
+  --bg-disabled: #f6f6f4;
+  --bg-skeleton: #d6d6d2;
+
+  --bg-inverse: #111111;
+  --ink-inverse: #ffffff;
+
+  /* text */
+  --ink-primary: #111111;
+  --ink-body: #444444;
+  --ink-secondary: #6b6b6b;
+  --ink-muted: #8a8a86;
+  --ink-disabled: #9a9a96;
+
+  /* borders */
+  --border-default: #e4e4e0;
+  --border-strong: #111111;
+  --border-dashed: #c9c9c4;
+
+  /* accent */
+  --accent: #4b3fd1;
+  --accent-tint: #ecebff;
+
+  /* status: solid / text / tint */
+  --success: #2e9e66;
+  --success-text: #17653f;
+  --success-tint: #e3f4ea;
+  --warning: #e0a100;
+  --warning-text: #7a4a00;
+  --warning-tint: #ffefc2;
+  --danger: #b3261e;
+  --danger-text: #b3261e;
+  --danger-tint: #fde8e6;
+  --info-text: #2b49c4;
+  --info-tint: #e5ecff;
+  --neutral-text: #555555;
+  --neutral-tint: #ececea;
+
+  /* auth: lavender page with soft blobs, see-through cards */
+  --bg-auth: #f2f1f8;
+  --auth-blob: #dedaf8;
+  --bg-glass: rgb(255 255 255 / 0.7);
+  --border-glass: rgb(255 255 255 / 0.9);
+  /* auth: status borders for the info boxes */
+  --success-line: #a9e6cb;
+  --warning-line: #f2cf7c;
+  --danger-line: #f5c6c2;
+
+  color-scheme: light;
+}
+
+/* ---------------------------------------------------------------------------
+   2. TAILWIND THEME
+   ------------------------------------------------------------------------ */
+@theme inline {
+  --font-sans:
+    "Gabarito", ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, Menlo, Consolas, monospace;
+
+  --color-page: var(--bg-page);
+  --color-card: var(--bg-card);
+  --color-subtle: var(--bg-subtle);
+  --color-muted: var(--bg-muted);
+  --color-disabled: var(--bg-disabled);
+  --color-skeleton: var(--bg-skeleton);
+  --color-inverse: var(--bg-inverse);
+  --color-on-inverse: var(--ink-inverse);
+
+  --color-ink: var(--ink-primary);
+  --color-ink-body: var(--ink-body);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-disabled: var(--ink-disabled);
+
+  --color-line: var(--border-default);
+  --color-line-strong: var(--border-strong);
+  --color-line-dashed: var(--border-dashed);
+
+  --color-accent: var(--accent);
+  --color-accent-tint: var(--accent-tint);
+
+  --color-success: var(--success);
+  --color-success-text: var(--success-text);
+  --color-success-tint: var(--success-tint);
+  --color-success-line: var(--success-line);
+  --color-warning: var(--warning);
+  --color-warning-text: var(--warning-text);
+  --color-warning-tint: var(--warning-tint);
+  --color-warning-line: var(--warning-line);
+  --color-danger: var(--danger);
+  --color-danger-text: var(--danger-text);
+  --color-danger-tint: var(--danger-tint);
+  --color-danger-line: var(--danger-line);
+  --color-info-text: var(--info-text);
+  --color-info-tint: var(--info-tint);
+  --color-neutral-text: var(--neutral-text);
+  --color-neutral-tint: var(--neutral-tint);
+
+  --color-auth: var(--bg-auth);
+  --color-auth-blob: var(--auth-blob);
+  --color-glass: var(--bg-glass);
+  --color-line-glass: var(--border-glass);
+}
+
+@theme {
+  /* radius */
+  --radius-xs: 4px;
+  --radius-tag: 8px;
+  --radius-small: 12px;
+  --radius-input: 16px;
+  --radius-card-sm: 20px;
+  --radius-card: 28px;
+  --radius-pill: 999px;
+
+  /* shadows */
+  --shadow-subtle:
+    0 1px 3px rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+  --shadow-elevated:
+    0 5px 20px rgb(17 17 17 / 0.1), 0 1px 6px rgb(17 17 17 / 0.04);
+  --shadow-modal:
+    0 25px 60px -12px rgb(0 0 0 / 0.12), 0 0 0 1px rgb(0 0 0 / 0.06);
+  /* auth: soft shadow under the floating card */
+  --shadow-auth: 0 24px 60px -24px rgb(75 63 209 / 0.18);
+
+  /* type scale (same as web app) */
+  --text-h1: 3rem;
+  --text-h1--line-height: 3.625rem;
+  --text-h1--font-weight: 700;
+  --text-h1--letter-spacing: -0.03em;
+
+  --text-h2: 2.5rem;
+  --text-h2--line-height: 3rem;
+  --text-h2--font-weight: 700;
+  --text-h2--letter-spacing: -0.03em;
+
+  --text-h3: 2rem;
+  --text-h3--line-height: 2.375rem;
+  --text-h3--font-weight: 700;
+  --text-h3--letter-spacing: -0.03em;
+
+  --text-s1: 1.125rem;
+  --text-s1--line-height: 1.75rem;
+  --text-s1--font-weight: 700;
+  --text-s2: 1rem;
+  --text-s2--line-height: 1.5rem;
+  --text-s2--font-weight: 700;
+
+  --text-p1: 1rem;
+  --text-p1--line-height: 1.5rem;
+  --text-p2: 1rem;
+  --text-p2--line-height: 1.5rem;
+  --text-p2--font-weight: 500;
+  --text-p3: 0.875rem;
+  --text-p3--line-height: 1.25rem;
+  --text-p4: 0.875rem;
+  --text-p4--line-height: 1.25rem;
+  --text-p4--font-weight: 500;
+
+  --text-c1: 0.75rem;
+  --text-c1--line-height: 1rem;
+  --text-c2: 0.75rem;
+  --text-c2--line-height: 1rem;
+  --text-c2--font-weight: 500;
+
+  --text-eyebrow: 0.6875rem;
+  --text-eyebrow--line-height: 1rem;
+  --text-eyebrow--font-weight: 500;
+  --text-eyebrow--letter-spacing: 0.16em;
+
+  --text-btn-sm: 0.875rem;
+  --text-btn-sm--line-height: 1rem;
+  --text-btn-sm--font-weight: 700;
+  --text-btn-md: 1rem;
+  --text-btn-md--line-height: 1.25rem;
+  --text-btn-md--font-weight: 700;
+
+  /* auth: page titles on phones */
+  --text-h4: 1.5rem;
+  --text-h4--line-height: 2rem;
+  --text-h4--font-weight: 700;
+  --text-h4--letter-spacing: -0.02em;
+
+  /* auth: subtitle under page titles */
+  --text-lead: 1.125rem;
+  --text-lead--line-height: 1.75rem;
+  /* auth: uppercase field labels ("EMAIL", "PASSWORD") */
+  --text-label: 0.8125rem;
+  --text-label--line-height: 1rem;
+  --text-label--font-weight: 700;
+  --text-label--letter-spacing: 0.06em;
+}
+
+/* ---------------------------------------------------------------------------
+   3. BASE
+   ------------------------------------------------------------------------ */
+@layer base {
+  * {
+    border-color: var(--border-default);
+  }
+
+  html {
+    font-size: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--bg-auth);
+    color: var(--ink-body);
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3 {
+    color: var(--ink-primary);
+  }
+
+  ::selection {
+    background: var(--accent-tint);
+    color: var(--ink-primary);
+  }
+
+  ::placeholder {
+    color: var(--ink-muted);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
