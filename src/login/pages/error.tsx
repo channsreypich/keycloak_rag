@@ -1,5 +1,4 @@
 import { CircleAlert } from "lucide-react";
-import { kcSanitize } from "keycloakify/lib/kcSanitize";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
 import { AuthCard } from "../components/auth-card";
@@ -7,6 +6,7 @@ import { ButtonLink } from "../components/button";
 import { FooterLink } from "../components/footer-link";
 import { PageHeader } from "../components/page-header";
 import { PageShell } from "../components/page-shell";
+import { getFriendlyError } from "../lib/friendly-errors";
 import { getActionTokenType, loginActionUrl } from "../lib/kc-urls";
 import { ResetLinkExpired, VerifyLinkExpired } from "./link-expired";
 import { NoAccountFound, providerDisplayName } from "./no-account-found";
@@ -57,10 +57,7 @@ export default function ErrorPage(props: Props) {
         return (
             <PageShell kcContext={kcContext} title="Link Expired">
                 {isReset ? (
-                    <ResetLinkExpired
-                        forgotPasswordUrl={loginActionUrl(url.loginUrl, "reset-credentials")}
-                        signInUrl={url.loginUrl}
-                    />
+                    <ResetLinkExpired forgotPasswordUrl={loginActionUrl(url.loginUrl, "reset-credentials")} signInUrl={url.loginUrl} />
                 ) : (
                     <VerifyLinkExpired email={auth?.attemptedUsername} signInUrl={url.loginUrl} />
                 )}
@@ -68,18 +65,15 @@ export default function ErrorPage(props: Props) {
         );
     }
 
+    // Never show Keycloak's technical text to users. Developers can find it in the console.
+    console.error("Keycloak error:", message.summary);
+    const friendly = getFriendlyError(message.summary, msgStr);
+
     return (
-        <PageShell kcContext={kcContext} title="Something Went Wrong">
+        <PageShell kcContext={kcContext} title={friendly.title}>
             <AuthCard>
-                <PageHeader
-                    icon={CircleAlert}
-                    iconTone="danger"
-                    title="Something Went Wrong"
-                    subtitle={<span dangerouslySetInnerHTML={{ __html: kcSanitize(message.summary) }} />}
-                />
-                <ButtonLink href={client?.baseUrl || url.loginUrl}>
-                    {client?.baseUrl ? "Back to RAGStudio" : "Back to sign in"}
-                </ButtonLink>
+                <PageHeader icon={CircleAlert} iconTone="danger" title={friendly.title} subtitle={friendly.text} />
+                <ButtonLink href={client?.baseUrl || url.loginUrl}>{client?.baseUrl ? "Back to RAGStudio" : "Back to sign in"}</ButtonLink>
                 {client?.baseUrl && (
                     <FooterLink text="Want to try again?" href={url.loginUrl}>
                         Sign in
