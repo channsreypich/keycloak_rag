@@ -9,7 +9,7 @@ import { PageShell } from "../components/page-shell";
 import { SocialButtons } from "../components/social-buttons";
 import { SplitLayout } from "../components/split-layout";
 import { PasswordField, TextField } from "../components/text-field";
-import { LOCKOUT_SECONDS } from "../lib/constants";
+import { ADMIN_CLIENT_ID, LOCKOUT_SECONDS } from "../lib/constants";
 import { formatSeconds, useCountdown } from "../lib/countdown";
 import { getEmailError } from "../lib/validation";
 import { AccountPendingDeletion } from "./account-pending-deletion";
@@ -56,7 +56,7 @@ export default function Login(props: Props) {
     }
 
     return (
-        <PageShell kcContext={kcContext} title="Sign In">
+        <PageShell kcContext={kcContext} title={kcContext.client.clientId === ADMIN_CLIENT_ID ? "Admin Sign In" : "Sign In"}>
             <SignInForm {...props} />
         </PageShell>
     );
@@ -65,6 +65,9 @@ export default function Login(props: Props) {
 function SignInForm(props: Props) {
     const { kcContext, i18n } = props;
     const { realm, url, usernameHidden, login, auth, registrationDisabled, messagesPerField, message, social, bruteForce } = kcContext;
+
+    // Opened from the web app's admin sign-in: email and password only (admins have no Google/GitHub)
+    const isAdmin = kcContext.client.clientId === ADMIN_CLIENT_ID;
 
     const [username, setUsername] = useState(login.username ?? "");
     const [password, setPassword] = useState("");
@@ -107,9 +110,14 @@ function SignInForm(props: Props) {
 
     return (
         <SplitLayout panelSide="right">
-            <PageHeader align="left" title="Sign In" subtitle="Welcome back. Sign in to manage your chatbots and knowledge bases." />
+            <PageHeader
+                align="left"
+                eyebrow={isAdmin ? "Admin console" : undefined}
+                title={isAdmin ? "Admin sign-in" : "Sign In"}
+                subtitle="Welcome back. Sign in to manage your chatbots and knowledge bases."
+            />
 
-            <SocialButtons providers={social?.providers} dividerText="or sign in with email" />
+            {!isAdmin && <SocialButtons providers={social?.providers} dividerText="or sign in with email" />}
 
             {/* The field error below already explains bad credentials and locks */}
             {!credentialsError && <FormMessage message={message} />}
@@ -125,14 +133,16 @@ function SignInForm(props: Props) {
                             inputMode="email"
                             autoComplete="username"
                             autoFocus
-                            placeholder="Enter your email"
+                            placeholder={isAdmin ? "you@company.com" : "Enter your email"}
+                            plainLabel={isAdmin}
                             value={username}
                             onChange={e => {
                                 setUsername(e.target.value);
                                 setErrors(prev => ({ ...prev, username: undefined }));
                             }}
                             error={errors.username}
-                            invalid={!!credentialsError}
+                            // While locked only the password box is red (the lock is about the password)
+                            invalid={!!credentialsError && !locked}
                         />
                     )}
 
@@ -140,6 +150,7 @@ function SignInForm(props: Props) {
                         id="password"
                         name="password"
                         label="Password"
+                        plainLabel={isAdmin}
                         autoComplete="current-password"
                         placeholder="Enter your password"
                         value={password}
@@ -157,7 +168,7 @@ function SignInForm(props: Props) {
                         }
                     />
 
-                    {realm.rememberMe && !usernameHidden && (
+                    {realm.rememberMe && !usernameHidden && !(isAdmin && locked) && (
                         <label className="flex w-fit cursor-pointer items-center gap-2.5 text-p3 text-ink-body">
                             <input
                                 type="checkbox"
@@ -166,7 +177,7 @@ function SignInForm(props: Props) {
                                 defaultChecked={!!login.rememberMe}
                                 className="size-4 cursor-pointer accent-ink"
                             />
-                            Remember me
+                            {isAdmin ? "Remember me on this device" : "Remember me"}
                         </label>
                     )}
 
@@ -193,7 +204,8 @@ function SignInForm(props: Props) {
                 </form>
             )}
 
-            {isLocked && realm.resetPasswordAllowed ? (
+            {/* Admin accounts are made by the team, so the admin page has no sign-up link */}
+            {isAdmin ? null : isLocked && realm.resetPasswordAllowed ? (
                 <FooterLink text="Forgot your password?" href={url.loginResetCredentialsUrl}>
                     Reset password
                 </FooterLink>

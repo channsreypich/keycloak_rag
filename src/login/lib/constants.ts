@@ -14,4 +14,12 @@ export const LOCKOUT_SECONDS = 120;
 export const SUPPORT_URL = "mailto:support@ragstudio.app";
 
 /** Authenticator apps named on the "Set Up Authenticator" page. */
-export const AUTHENTICATOR_APPS = "Google Authenticator, Microsoft Authenticator or 1Password";
+export const AUTHENTICATOR_APPS =
+    "Google Authenticator, Microsoft Authenticator or 1Password";
+
+/**
+ * Keycloak client used by the web app's admin sign-in (/admin).
+ * Pages opened through this client show the admin design: no Google/GitHub,
+ * no sign-up link. Keep in sync with AUTH_KEYCLOAK_ADMIN_ID in the web app.
+ */
+export const ADMIN_CLIENT_ID = "ragstudio-admin";

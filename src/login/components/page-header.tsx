@@ -10,18 +10,32 @@ const toneClasses: Record<Tone, string> = {
     danger: "bg-danger text-on-inverse"
 };
 
-/** Icon tile + big title + subtitle at the top of a card. */
+/** Icon tile (or small eyebrow label) + big title + subtitle at the top of a card. */
 export function PageHeader(props: {
     title: string;
+    /** Small mono label above the title, e.g. "Admin console" */
+    eyebrow?: string;
     subtitle?: ReactNode;
     icon?: LucideIcon;
     iconTone?: Tone;
     align?: "center" | "left";
 }) {
-    const { title, subtitle, icon: Icon, iconTone = "accent", align = "center" } = props;
+    const {
+        title,
+        eyebrow,
+        subtitle,
+        icon: Icon,
+        iconTone = "accent",
+        align = "center"
+    } = props;
 
     return (
-        <header className={cn("mb-6 tall:sm:mb-8", align === "center" ? "text-center" : "text-left")}>
+        <header
+            className={cn(
+                "mb-6 tall:sm:mb-8",
+                align === "center" ? "text-center" : "text-left"
+            )}
+        >
             {Icon && (
                 <div
                     aria-hidden
@@ -33,8 +47,17 @@ export function PageHeader(props: {
                     <Icon className="size-6" strokeWidth={1.75} />
                 </div>
             )}
-            <h1 className="text-h4 font-extrabold sm:text-h3 sm:font-extrabold">{title}</h1>
-            {subtitle && <p className="mt-2 text-p3 text-ink-secondary sm:text-p1">{subtitle}</p>}
+            {eyebrow && (
+                <p className="mb-4 font-mono text-eyebrow uppercase text-ink-secondary">
+                    {eyebrow}
+                </p>
+            )}
+            <h1 className="text-h4 font-extrabold sm:text-h3 sm:font-extrabold">
+                {title}
+            </h1>
+            {subtitle && (
+                <p className="mt-2 text-p3 text-ink-secondary sm:text-p1">{subtitle}</p>
+            )}
         </header>
     );
 }

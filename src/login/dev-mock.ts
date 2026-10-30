@@ -11,8 +11,10 @@
 //   /?page=login-otp.ftl             → any page id
 //   /?state=suspended                → a page variant (see SCREENS in preview-menu.tsx)
 // Sign in with an email that starts with "admin" → Set up MFA → admin pages.
+// Add ?client=admin to see a page as the admin sign-in shows it (no Google/GitHub, no sign up).
 
 import type { KcContext } from "./KcContext";
+import { ADMIN_CLIENT_ID } from "./lib/constants";
 import {
     getKcContextMock,
     MOCK_EMAIL,
@@ -248,9 +250,17 @@ function overridesFor(pageId: PageId, state: string | null): object {
     }
 }
 
+/** True when the page was opened as the admin sign-in (?client=admin). */
+function isAdminClient() {
+    return new URLSearchParams(window.location.search).get("client") === "admin";
+}
+
 export function getDevKcContext(): KcContext {
     const pageId = pageIdFromUrl();
     const state = new URLSearchParams(window.location.search).get("state");
+    const admin = isAdminClient();
+    // Keep ?client=admin on the links, like Keycloak keeps the client for the whole sign-in
+    const keep = admin ? "?client=admin" : "";
 
     const { url, ...rest } = overridesFor(pageId, state) as { url?: object };
 
@@ -258,11 +268,12 @@ export function getDevKcContext(): KcContext {
         pageId,
         overrides: {
             ...rest,
+            ...(admin && { client: { clientId: ADMIN_CLIENT_ID } }),
             url: {
-                loginUrl: LOGIN_URL,
-                loginRestartFlowUrl: LOGIN_URL,
+                loginUrl: LOGIN_URL + keep,
+                loginRestartFlowUrl: LOGIN_URL + keep,
                 registrationUrl: REGISTRATION_URL,
-                loginResetCredentialsUrl: RESET_URL,
+                loginResetCredentialsUrl: RESET_URL + keep,
                 ...url
             }
         } as never
@@ -281,10 +292,11 @@ export function installMockSubmit() {
         event.preventDefault();
         const form = event.target as HTMLFormElement;
         const username = new FormData(form).get("username");
+        // Admin sign-in page, or an email that starts with "admin": go through MFA
         const isAdmin =
             form.id === "kc-form-login" &&
-            typeof username === "string" &&
-            username.trim().startsWith("admin");
+            (isAdminClient() ||
+                (typeof username === "string" && username.trim().startsWith("admin")));
         const next = isAdmin ? ADMIN_MFA_URL : form.getAttribute("action");
         if (next && next !== "#") window.location.assign(next);
     });

@@ -53,6 +53,21 @@ const SCREENS: { group: string; items: Screen[] }[] = [
         ]
     },
     {
+        group: "Admin sign in",
+        items: [
+            { label: "Admin sign-in", href: "/?client=admin" },
+            {
+                label: "Admin: wrong password",
+                href: "/?client=admin&state=attempts-left"
+            },
+            { label: "Admin: locked", href: "/?client=admin&state=locked" },
+            {
+                label: "Admin: forgot password",
+                href: "/login-actions/reset-credentials?client=admin"
+            }
+        ]
+    },
+    {
         group: "Admin MFA",
         items: [
             {

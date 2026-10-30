@@ -9,6 +9,7 @@ import { FormMessage } from "../components/form-message";
 import { PageHeader } from "../components/page-header";
 import { PageShell } from "../components/page-shell";
 import { TextField } from "../components/text-field";
+import { ADMIN_CLIENT_ID } from "../lib/constants";
 import { loginActionUrl } from "../lib/kc-urls";
 import { getEmailError } from "../lib/validation";
 import { ResetLinkExpired } from "./link-expired";
@@ -83,9 +84,16 @@ export default function LoginResetPassword(props: Props) {
                         {isSubmitting ? "Sending…" : "Send reset link"}
                     </Button>
                 </form>
-                <FooterLink text="Don’t have an account?" href={loginActionUrl(url.loginUrl, "registration")}>
-                    Sign up
-                </FooterLink>
+                {/* Admin accounts are made by the team, so admins get "Back to sign in" instead of "Sign up" */}
+                {kcContext.client.clientId === ADMIN_CLIENT_ID ? (
+                    <FooterLink text="Remembered it?" href={url.loginUrl}>
+                        Back to sign in
+                    </FooterLink>
+                ) : (
+                    <FooterLink text="Don’t have an account?" href={loginActionUrl(url.loginUrl, "registration")}>
+                        Sign up
+                    </FooterLink>
+                )}
             </AuthCard>
         </PageShell>
     );
