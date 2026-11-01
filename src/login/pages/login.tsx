@@ -114,7 +114,11 @@ function SignInForm(props: Props) {
                 align="left"
                 eyebrow={isAdmin ? "Admin console" : undefined}
                 title={isAdmin ? "Admin sign-in" : "Sign In"}
-                subtitle="Welcome back. Sign in to manage your chatbots and knowledge bases."
+                subtitle={
+                    isAdmin
+                        ? "Welcome back. Sign in to manage users, models and chatbots."
+                        : "Welcome back. Sign in to manage your chatbots and knowledge bases."
+                }
             />
 
             {!isAdmin && <SocialButtons providers={social?.providers} dividerText="or sign in with email" />}

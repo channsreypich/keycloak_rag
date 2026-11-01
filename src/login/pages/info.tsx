@@ -10,6 +10,11 @@ import { StatusBox } from "../components/status-box";
 
 type Props = { kcContext: Extract<KcContext, { pageId: "info.ftl" }>; i18n: I18n };
 
+/** True for an untranslated key like "accountUpdatedTitle" (one word, with a capital or dot inside). */
+function looksLikeMessageKey(text: string) {
+    return !/\s/.test(text) && /[a-z][A-Z.-]/.test(text);
+}
+
 /** info.ftl: "Email Verified", or any other Keycloak info message. */
 export default function Info(props: Props) {
     const { kcContext, i18n } = props;
@@ -29,7 +34,7 @@ export default function Info(props: Props) {
                         icon={CircleCheck}
                         iconTone="success"
                         title="Email Verified"
-                        subtitle="You’re signed in. Let’s create your first chatbot."
+                        subtitle="Your email is confirmed. Let’s create your first chatbot."
                     />
                     <div className="space-y-6">
                         {email && <StatusBox tone="success" label="Verified" value={email} />}
@@ -46,12 +51,19 @@ export default function Info(props: Props) {
 
     const actions = requiredActions?.map(action => advancedMsgStr(`requiredAction.${action}`)).join(", ");
 
+    // Keycloak sends messageHeader as a message key or as finished text.
+    // advancedMsgStr handles both. It returns the key itself when there is no
+    // translation, and users should never see that.
+    const header = messageHeader ? advancedMsgStr(messageHeader) : undefined;
+    const title = header && !looksLikeMessageKey(header) ? header : actionUri ? "Confirm to Continue" : "Information";
+    const showButton = !skipLink && !!nextUrl;
+
     return (
-        <PageShell kcContext={kcContext} title={messageHeader || "Information"}>
+        <PageShell kcContext={kcContext} title={title}>
             <AuthCard>
                 <PageHeader
                     icon={InfoIcon}
-                    title={messageHeader || "Information"}
+                    title={title}
                     subtitle={
                         <>
                             <span dangerouslySetInnerHTML={{ __html: kcSanitize(message.summary) }} />
@@ -59,8 +71,10 @@ export default function Info(props: Props) {
                         </>
                     }
                 />
-                {!skipLink && nextUrl && (
+                {showButton ? (
                     <ButtonLink href={nextUrl}>{actionUri ? "Continue" : "Back to RAGStudio"}</ButtonLink>
+                ) : (
+                    <p className="text-center text-p3 text-ink-secondary">You can close this page now.</p>
                 )}
             </AuthCard>
         </PageShell>

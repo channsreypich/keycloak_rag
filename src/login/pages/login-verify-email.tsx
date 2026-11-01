@@ -58,7 +58,7 @@ export default function LoginVerifyEmail(props: Props) {
                 {resent ? (
                     <PageHeader
                         title="New Link Sent"
-                        subtitle="We sent a fresh verification link to your inbox. Older links no longer work."
+                        subtitle="We sent a fresh verification link to your inbox."
                     />
                 ) : (
                     <PageHeader

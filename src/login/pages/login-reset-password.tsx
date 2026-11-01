@@ -60,7 +60,7 @@ export default function LoginResetPassword(props: Props) {
                 <PageHeader
                     icon={KeyRound}
                     title="Forgot Password"
-                    subtitle="Enter the email you use for RAGStudio and we’ll send you a link to reset it."
+                    subtitle="Enter the email you use for RAGStudio and we’ll send you a link to reset your password."
                 />
                 {!emailError && <FormMessage message={message} />}
                 <form id="kc-reset-password-form" action={url.loginAction} method="post" noValidate onSubmit={onSubmit} className="space-y-6">

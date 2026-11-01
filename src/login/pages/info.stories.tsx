@@ -21,6 +21,17 @@ export const EmailVerified: Story = {
     }
 };
 
+/** Keycloak sends the title as a key; it must show as "Account updated" */
+export const AccountUpdated: Story = {
+    args: {
+        kcContext: {
+            messageHeader: "accountUpdatedTitle",
+            message: { type: "success", summary: "Your account has been updated." },
+            skipLink: true
+        }
+    }
+};
+
 /** Any other info message from Keycloak */
 export const OtherInfo: Story = {
     args: {
