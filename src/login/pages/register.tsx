@@ -12,7 +12,9 @@ import { SplitLayout } from "../components/split-layout";
 import { FieldError, PasswordField, TextField } from "../components/text-field";
 import { cn } from "../lib/cn";
 import { getPasswordChecks, getPasswordStrength } from "../lib/password-rules";
-import { getEmailError, getFullNameError } from "../lib/validation";
+import { appSignInUrl } from "../lib/kc-urls";
+import { setFlag, SIGNED_UP } from "../lib/session-flags";
+import { getFullNameError, getSignUpEmailError, getSignUpEmailTypingError } from "../lib/validation";
 
 type Props = { kcContext: Extract<KcContext, { pageId: "register.ftl" }>; i18n: I18n };
 
@@ -40,7 +42,7 @@ function splitFullName(fullName: string) {
  * - One "Full name" box fills firstName and lastName, so we ask for both names here
  */
 export default function Register(props: Props) {
-    const { kcContext } = props;
+    const { kcContext, i18n } = props;
     const { url, realm, profile, messagesPerField, message, termsAcceptanceRequired } = kcContext;
     // `social` is sent on register.ftl too, but not typed there
     const social = (kcContext as { social?: Extract<KcContext, { pageId: "login.ftl" }>["social"] }).social;
@@ -63,7 +65,12 @@ export default function Register(props: Props) {
     const err = (...fields: string[]) =>
         messagesPerField.existsError(fields[0], ...fields.slice(1)) ? messagesPerField.getFirstError(...fields) : undefined;
 
-    const confirmMismatch = confirm.length > 0 && confirm !== password ? "Passwords don’t match." : undefined;
+    const confirmMismatch = confirm.length > 0 && confirm !== password ? "Passwords do not match" : undefined;
+
+    // Keycloak says "Email already exists". Tell the user what to do instead.
+    const serverEmailError = err("email", "username");
+    const isEmailTaken = !!serverEmailError && [i18n.msgStr("emailExistsMessage"), i18n.msgStr("usernameExistsMessage")].includes(serverEmailError);
+    const emailServerText = isEmailTaken ? "This email is already registered. Sign in instead, or reset your password." : serverEmailError;
 
     // Keycloak's own name errors ("Please specify last name.") talk about fields
     // the user never sees, so say it in terms of the one "Full name" box
@@ -76,10 +83,10 @@ export default function Register(props: Props) {
     const onSubmit = (event: FormEvent<HTMLFormElement>) => {
         const next: Partial<Record<Field, string>> = {
             fullName: getFullNameError(fullName),
-            email: getEmailError(email),
+            email: getSignUpEmailError(email),
             password: !password ? "Please create a password." : undefined,
             confirm: !confirm ? "Please confirm your password." : confirmMismatch,
-            terms: !termsAccepted ? "Please accept the Terms of Service and Privacy Policy." : undefined
+            terms: !termsAccepted ? "You must accept the Terms of Service and Privacy Policy" : undefined
         };
         const firstInvalid = FIELDS.find(field => next[field]);
         if (firstInvalid) {
@@ -88,6 +95,7 @@ export default function Register(props: Props) {
             document.getElementById(FIELD_IDS[firstInvalid])?.focus();
             return;
         }
+        setFlag(SIGNED_UP);
         setIsSubmitting(true);
     };
     const hasFieldErrors = messagesPerField.existsError(
@@ -149,7 +157,7 @@ export default function Register(props: Props) {
                             clearError("email");
                         }}
                         hint="Your email is used as your username"
-                        error={errors.email ?? err("email", "username")}
+                        error={errors.email ?? getSignUpEmailTypingError(email) ?? emailServerText}
                     />
                     {/* Only needed if "Email as username" is OFF in the realm */}
                     {!realm.registrationEmailAsUsername && <input type="hidden" name="username" value={email} />}
@@ -211,11 +219,12 @@ export default function Register(props: Props) {
                     </div>
 
                     <Button type="submit" disabled={isSubmitting}>
-                        {isSubmitting ? "Creating account…" : "Create account"}
+                        {isSubmitting ? "Creating your account…" : "Create account"}
                     </Button>
                 </form>
 
-                <FooterLink text="Already have an account?" href={url.loginUrl}>
+                {/* A new flow from the web app, so an existing user does not land on Get Started */}
+                <FooterLink text="Already have an account?" href={appSignInUrl(kcContext.client) ?? url.loginUrl}>
                     Sign in
                 </FooterLink>
             </SplitLayout>

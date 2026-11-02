@@ -5,10 +5,12 @@ export const RESET_LINK_MINUTES = 15;
 
 /**
  * Realm → Security defenses → Brute force detection → "Wait increment".
- * Used for the "Locked · try again in 02:00" countdown when the backend
- * does not send the exact time left (`bruteForce.lockedForSeconds`).
+ * The first lock lasts this long. Longer locks are worked out in lib/login-lock.ts.
  */
-export const LOCKOUT_SECONDS = 120;
+export const LOCKOUT_SECONDS = 60;
+
+/** Web app page a new user opens after verifying their email. */
+export const GET_STARTED_PATH = "/get-started";
 
 /** TODO(team): real support address or page. */
 export const SUPPORT_URL = "mailto:support@ragstudio.app";

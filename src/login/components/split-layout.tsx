@@ -24,7 +24,12 @@ function BrandPanel() {
                 Free to start · no card needed
             </p>
             <h2 className="mt-4 text-h3 font-extrabold tall:mt-5 xl:tall:text-h2">
-                Build a chatbot that <span className="text-ink-muted">cites its sources.</span>
+                Build a chatbot that{" "}
+                <span className="text-ink-muted">
+                    cites
+                    <br />
+                    its sources.
+                </span>
             </h2>
             <p className="mt-3 max-w-md text-p3 text-ink-body tall:mt-4 xl:tall:text-p1">
                 Upload your documents, test in the playground, and publish — every answer shows exactly where it

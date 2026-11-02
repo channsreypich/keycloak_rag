@@ -54,7 +54,7 @@ export function AccountPendingDeletion(props: {
                 </ButtonLink>
             </div>
             <p className="mt-6 text-p3 text-ink-secondary">
-                If you sign out, the account stays pending deletion and can still be restored within {daysText}.
+                If you sign out, the account stays PENDING DELETION and can still be restored within {daysText}.
             </p>
             <FooterLink text="Questions?" href={SUPPORT_URL}>
                 Contact support

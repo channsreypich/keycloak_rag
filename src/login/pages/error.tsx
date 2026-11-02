@@ -7,7 +7,7 @@ import { FooterLink } from "../components/footer-link";
 import { PageHeader } from "../components/page-header";
 import { PageShell } from "../components/page-shell";
 import { getFriendlyError } from "../lib/friendly-errors";
-import { getActionTokenType, loginActionUrl } from "../lib/kc-urls";
+import { appSignInUrl, appSignUpUrl, getActionTokenType, loginActionUrl } from "../lib/kc-urls";
 import { ResetLinkExpired, VerifyLinkExpired } from "./link-expired";
 import { NoAccountFound, providerDisplayName } from "./no-account-found";
 
@@ -45,8 +45,9 @@ export default function ErrorPage(props: Props) {
                 <NoAccountFound
                     provider={providerDisplayName(noAccount[2])}
                     email={noAccount[1].includes("@") ? noAccount[1] : auth?.attemptedUsername}
-                    signUpUrl={loginActionUrl(url.loginUrl, "registration")}
-                    signInUrl={url.loginUrl}
+                    signUpUrl={appSignUpUrl(client) ?? loginActionUrl(url.loginUrl, "registration")}
+                    // A new sign in from the web app: the blocked Google/GitHub attempt has ended
+                    signInUrl={appSignInUrl(client) ?? url.loginUrl}
                 />
             </PageShell>
         );

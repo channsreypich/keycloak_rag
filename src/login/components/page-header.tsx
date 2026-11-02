@@ -2,10 +2,11 @@ import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "../lib/cn";
 
-type Tone = "accent" | "success" | "danger";
+type Tone = "accent" | "inverse" | "success" | "danger";
 
 const toneClasses: Record<Tone, string> = {
     accent: "bg-accent-tint text-accent",
+    inverse: "bg-inverse text-on-inverse",
     success: "bg-success-text text-on-inverse",
     danger: "bg-danger text-on-inverse"
 };

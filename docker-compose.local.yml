@@ -1,0 +1,14 @@
+# Test this theme on the existing local stack (~/Documents/KSGA/ragstudio/infra).
+# It swaps the theme jar that the Keycloak container loads and adds the
+# extension that ends the sign-in lock after a password reset.
+#
+# Start (build both jars first, see README.md):
+#   docker compose -f ~/Documents/KSGA/ragstudio/infra/docker-compose.yml \
+#     -f ~/Documents/advance/ragstudio-keycloak-theme/docker-compose.local.yml \
+#     up -d --force-recreate keycloak mailpit
+services:
+  keycloak:
+    volumes:
+      - ${HOME}/Documents/advance/ragstudio-keycloak-theme/dist_keycloak/keycloak-theme-for-kc-all-other-versions.jar:/opt/keycloak/providers/ragstudio-theme.jar:ro
+      - ${HOME}/Documents/advance/ragstudio-keycloak-theme/extensions/clear-lock-on-reset/target/clear-lock-on-reset.jar:/opt/keycloak/providers/clear-lock-on-reset.jar:ro
+      - ${HOME}/Documents/advance/ragstudio-keycloak-theme/extensions/block-new-social-sign-in/target/block-new-social-sign-in.jar:/opt/keycloak/providers/block-new-social-sign-in.jar:ro

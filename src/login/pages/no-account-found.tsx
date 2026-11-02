@@ -12,8 +12,8 @@ export function providerDisplayName(alias: string) {
 
 /**
  * Signing in with Google/GitHub when no RAGStudio account uses that email.
- * Keycloak only shows this (instead of creating the account) when the realm's
- * "first broker login" flow is set to not create new users.
+ * The extension in extensions/block-new-social-sign-in sends the user here.
+ * Signing up with Google/GitHub still creates the account.
  */
 export function NoAccountFound(props: {
     provider: string;

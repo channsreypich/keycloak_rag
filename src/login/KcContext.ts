@@ -31,7 +31,7 @@ export type KcContextExtensionPerPage = {
          * Brute force detection details for the Sign in form.
          * TODO(backend): plain Keycloak hides these on purpose. Without them the
          * page still shows the lock (from Keycloak's "temporarily disabled"
-         * message) using LOCKOUT_SECONDS, just without "N attempts left".
+         * message) and the count in lib/login-lock.ts.
          */
         bruteForce?: {
             /** Failed attempts left before the temporary lock */

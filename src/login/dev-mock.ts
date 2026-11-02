@@ -10,10 +10,14 @@
 //   /login-actions/reset-credentials → Forgot password
 //   /?page=login-otp.ftl             → any page id
 //   /?state=suspended                → a page variant (see SCREENS in preview-menu.tsx)
-// Sign in with an email that starts with "admin" → Set up MFA → admin pages.
-// Add ?client=admin to see a page as the admin sign-in shows it (no Google/GitHub, no sign up).
+// Sign in with a demo account (demo-accounts.ts), password Demo1234:
+//   user@ragstudio.demo  → dashboard
+//   admin@ragstudio.demo → MFA → admin pages
+// Wrong passwords show errors and lock the account after 3 tries, like Keycloak.
+// New sign-ups can sign in too. Add ?client=admin to see a page as the admin sign-in shows it (no Google/GitHub, no sign up).
 
 import type { KcContext } from "./KcContext";
+import { checkSignIn, markMfaReady, signUp } from "./demo-accounts";
 import { ADMIN_CLIENT_ID } from "./lib/constants";
 import {
     getKcContextMock,
@@ -28,8 +32,9 @@ const DASHBOARD_URL = `${APP_URL}/dashboard`;
 const ADMIN_URL = `${APP_URL}/admin`;
 const NEW_CHATBOT_URL = `${APP_URL}/chatbots/new`;
 
-/** MFA is for admins only, so the mock admin sign-in goes to MFA setup first. */
-const ADMIN_MFA_URL = "/?page=login-config-totp.ftl";
+/** MFA is for admins only: setup the first time, then "Enter code". */
+const ADMIN_MFA_SETUP_URL = "/?page=login-config-totp.ftl";
+const ADMIN_MFA_CODE_URL = "/?page=login-otp.ftl";
 
 // Same paths as real Keycloak, so `loginActionUrl()` in lib/kc-urls.ts works.
 const LOGIN_URL = "/login-actions/authenticate";
@@ -50,6 +55,10 @@ function pageIdFromUrl(): PageId {
 
 /** Mock data per page. In real Keycloak the server sends all of this. */
 function overridesFor(pageId: PageId, state: string | null): object {
+    // The email the person typed (kept in the URL between mock pages)
+    const params = new URLSearchParams(window.location.search);
+    const email = params.get("email") ?? MOCK_EMAIL;
+
     // Google / GitHub = signed in
     const social = {
         displayInfo: true,
@@ -72,17 +81,20 @@ function overridesFor(pageId: PageId, state: string | null): object {
             if (state === "wrong-password") {
                 return {
                     ...base,
-                    login: { username: MOCK_EMAIL },
+                    login: { username: email },
                     message: { type: "error", summary: "Invalid username or password." },
                     messagesPerField: mockFieldErrors({
                         username: "Invalid username or password."
+                    }),
+                    ...(params.has("left") && {
+                        bruteForce: { attemptsLeft: Number(params.get("left")) }
                     })
                 };
             }
             if (state === "suspended") {
                 return {
                     ...base,
-                    login: { username: MOCK_EMAIL },
+                    login: { username: email },
                     message: {
                         type: "error",
                         summary: "Account is disabled, contact your administrator."
@@ -96,19 +108,19 @@ function overridesFor(pageId: PageId, state: string | null): object {
             if (state === "locked") {
                 return {
                     ...base,
-                    login: { username: MOCK_EMAIL },
+                    login: { username: email },
                     message: {
                         type: "error",
                         summary:
                             "Account is temporarily disabled; contact your administrator or retry later."
                     },
-                    bruteForce: { lockedForSeconds: 119 }
+                    bruteForce: { lockedForSeconds: Number(params.get("lock") ?? 119) }
                 };
             }
             if (state === "attempts-left") {
                 return {
                     ...base,
-                    login: { username: MOCK_EMAIL },
+                    login: { username: email },
                     message: { type: "error", summary: "Invalid username or password." },
                     messagesPerField: mockFieldErrors({
                         username: "Invalid username or password."
@@ -128,7 +140,7 @@ function overridesFor(pageId: PageId, state: string | null): object {
             if (state === "email-sent") {
                 return {
                     ...base,
-                    auth: { attemptedUsername: MOCK_EMAIL },
+                    auth: { attemptedUsername: email },
                     message: {
                         type: "success",
                         summary:
@@ -150,7 +162,7 @@ function overridesFor(pageId: PageId, state: string | null): object {
                         attributesByName: {
                             firstName: { value: "Chann" },
                             lastName: { value: "Sreypich" },
-                            email: { value: MOCK_EMAIL }
+                            email: { value: email }
                         }
                     },
                     messagesPerField: mockFieldErrors({ email: "Email already exists." })
@@ -160,7 +172,7 @@ function overridesFor(pageId: PageId, state: string | null): object {
         }
         case "login-verify-email.ftl":
             return {
-                user: { email: MOCK_EMAIL },
+                user: { email },
                 message: {
                     type: "warning",
                     summary:
@@ -280,9 +292,32 @@ export function getDevKcContext(): KcContext {
     });
 }
 
+/** Builds a mock page URL and keeps ?client=admin, like Keycloak keeps the client. */
+function mockUrl(path: string, params: Record<string, string>) {
+    const search = new URLSearchParams(params);
+    if (isAdminClient()) search.set("client", "admin");
+    return `${path}?${search}`;
+}
+
+/** Where a sign-in form goes, after checking the demo accounts. */
+function nextAfterSignIn(email: string, password: string) {
+    const result = checkSignIn(email, password);
+    if (result.kind === "locked") {
+        return mockUrl("/", { state: "locked", email, lock: String(result.secondsLeft) });
+    }
+    if (result.kind === "wrong") {
+        const params: Record<string, string> = { state: "wrong-password", email };
+        if (result.attemptsLeft !== undefined) params.left = String(result.attemptsLeft);
+        return mockUrl("/", params);
+    }
+    if (result.role === "admin")
+        return result.mfaReady ? ADMIN_MFA_CODE_URL : ADMIN_MFA_SETUP_URL;
+    return DASHBOARD_URL;
+}
+
 /**
- * There is no Keycloak to POST to, so a form submit just opens the form's
- * `action` URL (set per page above). That URL is the next mock screen.
+ * There is no Keycloak to POST to, so a form submit opens the next mock screen:
+ * sign in and sign up check the demo accounts, other forms open their `action` URL.
  */
 export function installMockSubmit() {
     // Bubble phase (after React's onSubmit), so a form that failed its own
@@ -291,13 +326,22 @@ export function installMockSubmit() {
         if (event.defaultPrevented) return;
         event.preventDefault();
         const form = event.target as HTMLFormElement;
-        const username = new FormData(form).get("username");
-        // Admin sign-in page, or an email that starts with "admin": go through MFA
-        const isAdmin =
-            form.id === "kc-form-login" &&
-            (isAdminClient() ||
-                (typeof username === "string" && username.trim().startsWith("admin")));
-        const next = isAdmin ? ADMIN_MFA_URL : form.getAttribute("action");
+        const data = new FormData(form);
+        const field = (name: string) => String(data.get(name) ?? "").trim();
+
+        let next = form.getAttribute("action");
+        if (form.id === "kc-form-login") {
+            next = nextAfterSignIn(field("username"), String(data.get("password") ?? ""));
+        } else if (form.id === "kc-register-form") {
+            const email = field("email");
+            next = signUp(email, String(data.get("password") ?? ""))
+                ? mockUrl("/", { page: "login-verify-email.ftl", email })
+                : mockUrl(REGISTRATION_URL, { state: "email-taken", email });
+        } else if (form.id === "kc-reset-password-form") {
+            next = mockUrl(LOGIN_URL, { state: "email-sent", email: field("username") });
+        } else if (form.id === "kc-totp-settings-form") {
+            markMfaReady();
+        }
         if (next && next !== "#") window.location.assign(next);
     });
 }

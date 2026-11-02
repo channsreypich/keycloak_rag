@@ -4,6 +4,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { FlaskConical, X } from "lucide-react";
+import { DEMO_PASSWORD } from "./demo-accounts";
 import { cn } from "./lib/cn";
 
 type Screen = { label: string; href: string };
@@ -171,10 +172,12 @@ export function PreviewMenu() {
                             </ul>
                         </div>
                     ))}
-                    <p className="border-t border-line px-2 pt-2 text-c1 text-ink-secondary">
-                        Tip: sign in with an email that starts with “admin” to see the
-                        admin MFA steps.
-                    </p>
+                    <div className="space-y-1 border-t border-line px-2 pt-2 text-c1 text-ink-secondary">
+                        <p>Demo accounts (password {DEMO_PASSWORD}):</p>
+                        <p className="font-mono text-ink">user@ragstudio.demo</p>
+                        <p className="font-mono text-ink">admin@ragstudio.demo</p>
+                        <p>3 wrong passwords lock the account for 2 minutes.</p>
+                    </div>
                 </nav>
             )}
             <button
