@@ -1,10 +1,9 @@
 import { useState, type FormEvent } from "react";
-import { ArrowRight } from "lucide-react";
 import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
 import { AuthCard } from "../components/auth-card";
-import { GitHubIcon, GoogleIcon } from "../components/brand-icons";
 import { Button, ButtonLink } from "../components/button";
+import { LinkPreview } from "../components/link-preview";
 import { PageHeader } from "../components/page-header";
 import { PasswordField } from "../components/text-field";
 
@@ -13,24 +12,6 @@ type Props = {
     i18n: I18n;
     provider: string;
 };
-
-/** "Google · name@mail.com  →  RAGStudio account". */
-function LinkPreview(props: { provider: string; email?: string }) {
-    const { provider, email } = props;
-    const Icon = provider === "GitHub" ? GitHubIcon : provider === "Google" ? GoogleIcon : undefined;
-    const chip = "flex min-w-0 items-center gap-2 rounded-pill border border-line bg-card px-3 py-1.5 text-c1 text-ink";
-
-    return (
-        <div className="mb-6 flex flex-wrap items-center justify-center gap-3">
-            <span className={chip}>
-                {Icon && <Icon aria-hidden className="size-4 shrink-0" />}
-                <span className="truncate">{email ? `${provider} · ${email}` : provider}</span>
-            </span>
-            <ArrowRight aria-hidden className="size-4 shrink-0 text-ink-muted" />
-            <span className={chip}>RAGStudio account</span>
-        </div>
-    );
-}
 
 /**
  * Keycloak's password step before linking a Google/GitHub account to an existing

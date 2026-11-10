@@ -87,6 +87,13 @@ const SCREENS: { group: string; items: Screen[] }[] = [
         ]
     },
     {
+        group: "Linked accounts",
+        items: [
+            { label: "Link GitHub", href: "/?page=link-idp-action.ftl&idp=GitHub" },
+            { label: "Link Google", href: "/?page=link-idp-action.ftl&idp=Google" }
+        ]
+    },
+    {
         group: "Other",
         items: [
             { label: "Page expired", href: "/?page=login-page-expired.ftl" },

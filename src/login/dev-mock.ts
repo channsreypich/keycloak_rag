@@ -271,6 +271,12 @@ function overridesFor(pageId: PageId, state: string | null): object {
             }
             return base;
         }
+        case "link-idp-action.ftl":
+            // "Connect" on Profile → Linked accounts (?idp=Google or GitHub)
+            return {
+                idpDisplayName: params.get("idp") ?? "GitHub",
+                url: { loginAction: DASHBOARD_URL }
+            };
         default:
             // Update password, page expired, ...: finishing the form = signed in
             return { url: { loginAction: DASHBOARD_URL } };

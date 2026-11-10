@@ -2,6 +2,7 @@ import type { KcContext } from "../KcContext";
 import type { I18n } from "../i18n";
 import { AuthCard } from "../components/auth-card";
 import { Button } from "../components/button";
+import { LinkPreview } from "../components/link-preview";
 import { PageHeader } from "../components/page-header";
 import { PageShell } from "../components/page-shell";
 
@@ -17,12 +18,13 @@ export default function LinkIdpAction(props: Props) {
     const { url, idpDisplayName } = kcContext;
 
     return (
-        <PageShell kcContext={kcContext} title={`Connect ${idpDisplayName}`}>
+        <PageShell kcContext={kcContext} title={`Link ${idpDisplayName}`}>
             <AuthCard>
                 <PageHeader
-                    title={`Connect ${idpDisplayName}`}
-                    subtitle={`Sign in with ${idpDisplayName} to link it to your RAGStudio account. Then you can use it to sign in.`}
+                    title={`Link ${idpDisplayName}`}
+                    subtitle={`Do you want to link your RAGStudio account with ${idpDisplayName}? After that you can sign in with ${idpDisplayName}.`}
                 />
+                <LinkPreview provider={idpDisplayName} />
                 <form action={url.loginAction} method="post" className="space-y-4">
                     {/* Keycloak reads which button was pressed from its name */}
                     <Button type="submit" name="continue" id="kc-continue">
@@ -32,6 +34,9 @@ export default function LinkIdpAction(props: Props) {
                         Cancel
                     </Button>
                 </form>
+                <p className="mt-6 text-center text-p3 text-ink-secondary">
+                    You can connect or disconnect Google and GitHub anytime in Profile → Linked accounts
+                </p>
             </AuthCard>
         </PageShell>
     );
