@@ -11,7 +11,9 @@ import { PageShell } from "../components/page-shell";
 import { PasswordStrength } from "../components/password-strength";
 import { Callout } from "../components/status-box";
 import { PasswordField } from "../components/text-field";
+import { clearLock } from "../lib/login-lock";
 import { getPasswordChecks, getPasswordStrength } from "../lib/password-rules";
+import { PASSWORD_SENT, setFlag } from "../lib/session-flags";
 
 type Props = { kcContext: Extract<KcContext, { pageId: "login-update-password.ftl" }>; i18n: I18n };
 
@@ -19,7 +21,8 @@ type Props = { kcContext: Extract<KcContext, { pageId: "login-update-password.ft
 export default function LoginUpdatePassword(props: Props) {
     const { kcContext } = props;
     const { url, auth, messagesPerField, message } = kcContext;
-    const email = auth?.attemptedUsername;
+    // After an emailed link, Keycloak sends the email as `username` instead
+    const email = auth?.attemptedUsername ?? (kcContext as { username?: string }).username;
 
     const [password, setPassword] = useState("");
     const [confirm, setConfirm] = useState("");
@@ -57,6 +60,9 @@ export default function LoginUpdatePassword(props: Props) {
             document.getElementById(next.password ? "password-new" : "password-confirm")?.focus();
             return;
         }
+        setFlag(PASSWORD_SENT);
+        // A new password ends the sign-in lock
+        if (email) clearLock(email);
         setIsSubmitting(true);
     };
 
@@ -79,7 +85,7 @@ export default function LoginUpdatePassword(props: Props) {
                     <PasswordField
                         id="password-new"
                         name="password-new"
-                        label="Password"
+                        label="New password"
                         autoComplete="new-password"
                         autoFocus
                         required
@@ -95,7 +101,7 @@ export default function LoginUpdatePassword(props: Props) {
                     <PasswordField
                         id="password-confirm"
                         name="password-confirm"
-                        label="Confirm password"
+                        label="Confirm new password"
                         autoComplete="new-password"
                         required
                         placeholder="Repeat your password"

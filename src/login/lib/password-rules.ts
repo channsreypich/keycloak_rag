@@ -23,7 +23,8 @@ const COMMON_PASSWORDS = new Set([
     "abc12345"
 ]);
 
-export type PasswordCheck = { label: string; ok: boolean };
+/** `broken`: the password breaks this rule (not just "not done yet"), so show it in red. */
+export type PasswordCheck = { label: string; ok: boolean; broken?: boolean };
 
 export function getPasswordChecks(params: {
     password: string;
@@ -35,14 +36,17 @@ export function getPasswordChecks(params: {
     const emailLower = email?.trim().toLowerCase() ?? "";
     const emailName = emailLower.split("@")[0];
 
+    const isEmail = emailLower !== "" && (lower === emailLower || lower === emailName);
+
     const checks: PasswordCheck[] = [
         {
             label: `${PASSWORD_MIN}–${PASSWORD_MAX} characters`,
             ok: password.length >= PASSWORD_MIN && password.length <= PASSWORD_MAX
         },
         {
-            label: "Not your email",
-            ok: password.length > 0 && (emailLower === "" || (lower !== emailLower && lower !== emailName))
+            label: isEmail ? "Can’t be your email" : "Not your email",
+            ok: password.length > 0 && !isEmail,
+            broken: isEmail
         }
     ];
 

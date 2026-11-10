@@ -4,7 +4,7 @@ import { cn } from "../lib/cn";
 
 export const inputClasses =
     // 16px text on phones so iOS doesn't zoom in on focus
-    "h-12 w-full rounded-input border bg-card px-4 text-p1 text-ink outline-none transition-colors focus:border-line-strong sm:text-p3";
+    "glass-input h-12 w-full rounded-input border px-4 text-p1 text-ink outline-none transition-colors focus:border-ink/35 sm:text-p3";
 
 /**
  * Label row; `aside` sits on the right (e.g. "Forgot password?").
@@ -79,7 +79,7 @@ export function TextField(props: TextFieldProps) {
                 id={id}
                 aria-invalid={isInvalid || undefined}
                 aria-describedby={describedBy}
-                className={cn(inputClasses, isInvalid ? "border-danger" : "border-line")}
+                className={cn(inputClasses, isInvalid ? "border-danger" : "border-line-glass")}
                 {...rest}
             />
             {error ? (
@@ -127,7 +127,7 @@ export function PasswordField(
                     className={cn(
                         inputClasses,
                         "pr-12",
-                        isInvalid ? "border-danger" : "border-line"
+                        isInvalid ? "border-danger" : "border-line-glass"
                     )}
                     {...rest}
                 />

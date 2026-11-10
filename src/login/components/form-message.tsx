@@ -5,10 +5,19 @@ import { cn } from "../lib/cn";
 type Message = { type: "success" | "warning" | "error" | "info"; summary: string };
 
 const tones = {
-    error: { box: "border-danger-line bg-danger-tint text-danger-text", Icon: CircleAlert },
-    warning: { box: "border-warning-line bg-warning-tint text-warning-text", Icon: CircleAlert },
-    success: { box: "border-success-line bg-success-tint text-success-text", Icon: CircleCheck },
-    info: { box: "border-line bg-subtle text-ink", Icon: Info }
+    error: {
+        box: "glass-panel border-danger-line bg-danger-tint/50 text-danger-text",
+        Icon: CircleAlert
+    },
+    warning: {
+        box: "glass-panel border-warning-line bg-warning-tint/55 text-warning-text",
+        Icon: CircleAlert
+    },
+    success: {
+        box: "glass-panel border-success-line bg-success-tint/50 text-success-text",
+        Icon: CircleCheck
+    },
+    info: { box: "glass-panel border-line-glass text-ink", Icon: Info }
 } as const;
 
 /** Banner for Keycloak's page message (e.g. "Invalid username or password."). */
@@ -20,7 +29,10 @@ export function FormMessage(props: { message: Message | undefined }) {
     return (
         <div
             role={message.type === "error" ? "alert" : "status"}
-            className={cn("mb-6 flex items-start gap-3 rounded-input border px-4 py-3 text-left text-p4", box)}
+            className={cn(
+                "mb-6 flex items-start gap-3 rounded-input border px-4 py-3 text-left text-p4",
+                box
+            )}
         >
             <Icon aria-hidden className="mt-0.5 size-4 shrink-0" />
             {/* Keycloak messages can contain simple HTML, so sanitize first */}

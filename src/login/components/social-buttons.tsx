@@ -1,7 +1,12 @@
 import type { ComponentType, SVGProps } from "react";
 import { GitHubIcon, GoogleIcon } from "./brand-icons";
 
-type Provider = { alias: string; providerId: string; displayName: string; loginUrl: string };
+type Provider = {
+    alias: string;
+    providerId: string;
+    displayName: string;
+    loginUrl: string;
+};
 
 const icons: Record<string, ComponentType<SVGProps<SVGSVGElement>>> = {
     google: GoogleIcon,
@@ -12,7 +17,10 @@ const icons: Record<string, ComponentType<SVGProps<SVGSVGElement>>> = {
  * Google / GitHub buttons + "or sign in with email" divider.
  * Shows only the identity providers set up in Keycloak.
  */
-export function SocialButtons(props: { providers: Provider[] | undefined; dividerText: string }) {
+export function SocialButtons(props: {
+    providers: Provider[] | undefined;
+    dividerText: string;
+}) {
     const providers = props.providers ?? [];
     if (providers.length === 0) return null;
 
@@ -26,7 +34,7 @@ export function SocialButtons(props: { providers: Provider[] | undefined; divide
                             <a
                                 id={`social-${p.alias}`}
                                 href={p.loginUrl}
-                                className="flex h-12 items-center justify-center gap-2 rounded-pill border border-line bg-card text-p4 text-ink transition-colors hover:bg-subtle"
+                                className="btn-glass relative isolate flex h-12 items-center justify-center gap-2 overflow-hidden rounded-pill border border-line bg-card text-p4 text-ink transition-[background-color,border-color,box-shadow] duration-300 [--sheen:rgb(75_63_209/0.14)] hover:border-line-glass hover:bg-card/60 hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.9),0_8px_24px_-12px_rgb(75_63_209/0.3)] hover:backdrop-blur-md"
                             >
                                 {Icon && <Icon className="size-4.5" />}
                                 {p.displayName}

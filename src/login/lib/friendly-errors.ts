@@ -84,6 +84,13 @@ const FRIENDLY_ERRORS: { keys: MessageKey[]; error: FriendlyError }[] = [
         }
     },
     {
+        keys: ["resetCredentialNotAllowedMessage"],
+        error: {
+            title: "Password Reset Isn’t Available",
+            text: "Password reset is turned off right now. Please contact support if you can’t sign in."
+        }
+    },
+    {
         keys: ["invalidTokenRequiredActions"],
         error: {
             title: "Link No Longer Valid",

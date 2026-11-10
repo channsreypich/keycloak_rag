@@ -1,4 +1,4 @@
-import { Check } from "lucide-react";
+import { Check, CircleAlert } from "lucide-react";
 import { cn } from "../lib/cn";
 import type { PasswordCheck, Strength } from "../lib/password-rules";
 
@@ -36,9 +36,16 @@ export function PasswordStrength(props: { strength: Strength; checks: PasswordCh
                 {checks.map(check => (
                     <li
                         key={check.label}
-                        className={cn("flex items-center gap-1.5 text-p3", check.ok ? "text-ink-body" : "text-ink-muted")}
+                        className={cn(
+                            "flex items-center gap-1.5 text-p3",
+                            check.broken ? "text-danger-text" : check.ok ? "text-ink-body" : "text-ink-muted"
+                        )}
                     >
-                        <Check aria-hidden className={cn("size-4", check.ok ? "text-success" : "text-ink-disabled")} />
+                        {check.broken ? (
+                            <CircleAlert aria-hidden className="size-4" />
+                        ) : (
+                            <Check aria-hidden className={cn("size-4", check.ok ? "text-success" : "text-ink-disabled")} />
+                        )}
                         {check.label}
                         <span className="sr-only">{check.ok ? "(done)" : "(not yet)"}</span>
                     </li>

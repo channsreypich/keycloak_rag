@@ -17,6 +17,8 @@ const LoginUpdatePassword = lazy(() => import("./pages/login-update-password"));
 const LoginConfigTotp = lazy(() => import("./pages/login-config-totp"));
 const LoginOtp = lazy(() => import("./pages/login-otp"));
 const LoginPageExpired = lazy(() => import("./pages/login-page-expired"));
+const LoginIdpLinkConfirm = lazy(() => import("./pages/login-idp-link-confirm"));
+const LinkIdpAction = lazy(() => import("./pages/link-idp-action"));
 
 const doMakeUserConfirmPassword = true;
 
@@ -49,6 +51,10 @@ export default function KcPage(props: { kcContext: KcContext }) {
                         return <LoginOtp kcContext={kcContext} i18n={i18n} />;
                     case "login-page-expired.ftl":
                         return <LoginPageExpired kcContext={kcContext} i18n={i18n} />;
+                    case "login-idp-link-confirm.ftl":
+                        return <LoginIdpLinkConfirm kcContext={kcContext} i18n={i18n} />;
+                    case "link-idp-action.ftl":
+                        return <LinkIdpAction kcContext={kcContext} i18n={i18n} />;
                     // Other Keycloak pages (account linking, terms, logout, ...)
                     // still use the default Keycloak look for now.
                     default:

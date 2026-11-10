@@ -1,10 +1,15 @@
-import { TriangleAlert } from "lucide-react";
+import { useState } from "react";
+import { RotateCcw, Undo2, type LucideIcon } from "lucide-react";
 import { AuthCard } from "../components/auth-card";
-import { ButtonLink } from "../components/button";
+import { Button, ButtonLink } from "../components/button";
 import { FooterLink } from "../components/footer-link";
+import { FormMessage } from "../components/form-message";
 import { PageHeader } from "../components/page-header";
-import { StatusBox } from "../components/status-box";
+import { cn } from "../lib/cn";
 import { SUPPORT_URL } from "../lib/constants";
+
+/** Shortest time the "Restoring" screen stays up, so it does not just flash. */
+const RESTORING_MIN_MS = 1000;
 
 function formatDate(iso: string) {
     const date = new Date(iso);
@@ -22,40 +27,95 @@ function daysUntil(iso: string) {
     return Math.max(0, Math.round((target.getTime() - today.getTime()) / 86_400_000));
 }
 
-/** Shown instead of the Sign in form when the account is waiting to be deleted. */
+function RoundIcon(props: { tone: "warning" | "accent"; icon: LucideIcon }) {
+    const { tone, icon: Icon } = props;
+    return (
+        <span
+            aria-hidden
+            className={cn(
+                "mx-auto mb-5 flex size-14 items-center justify-center rounded-pill",
+                tone === "warning" ? "bg-warning-tint text-warning-text" : "bg-accent-tint text-accent"
+            )}
+        >
+            <Icon className="size-6" />
+        </span>
+    );
+}
+
+function Row(props: { label: string; children: React.ReactNode }) {
+    return (
+        <div className="flex items-center justify-between gap-4 border-t border-line py-3 first:border-t-0">
+            <dt className="text-p4 text-ink">{props.label}</dt>
+            <dd className="min-w-0 text-right text-p3 break-words text-ink-secondary">{props.children}</dd>
+        </div>
+    );
+}
+
+/** Shown after signing in when the account is waiting to be deleted. */
 export function AccountPendingDeletion(props: {
+    email?: string;
+    message?: { type: "success" | "warning" | "error" | "info"; summary: string };
     signOutUrl: string;
     pendingDeletion: { deleteOn: string; restoreUrl: string };
 }) {
-    const { signOutUrl, pendingDeletion } = props;
+    const { email, message, signOutUrl, pendingDeletion } = props;
+    const [restoring, setRestoring] = useState(false);
     const days = daysUntil(pendingDeletion.deleteOn);
     const daysText = `${days} ${days === 1 ? "day" : "days"}`;
 
+    function restore() {
+        setRestoring(true);
+        setTimeout(() => window.location.assign(pendingDeletion.restoreUrl), RESTORING_MIN_MS);
+    }
+
+    if (restoring) {
+        return (
+            <AuthCard>
+                <div role="status">
+                    <RoundIcon tone="accent" icon={RotateCcw} />
+                    <PageHeader
+                        title="Restoring your account…"
+                        subtitle="This usually takes a few seconds. Please keep this page open."
+                    />
+                    <div
+                        role="progressbar"
+                        aria-label="Restoring your account"
+                        className="mb-6 h-1.5 overflow-hidden rounded-pill bg-muted"
+                    >
+                        <div className="h-full w-3/5 animate-pulse rounded-pill bg-inverse" />
+                    </div>
+                    <Button disabled>Restoring…</Button>
+                </div>
+            </AuthCard>
+        );
+    }
+
     return (
         <AuthCard>
+            <RoundIcon tone="warning" icon={Undo2} />
             <PageHeader
-                icon={TriangleAlert}
-                iconTone="danger"
-                title="Account Pending Deletion"
-                subtitle="You asked to delete this account. Your published chatbots are offline until you restore it or it is deleted."
+                title="Restore your account?"
+                subtitle="Your account is scheduled for deletion. Restore it now to keep your chatbots, documents and conversation logs."
             />
+            <FormMessage message={message} />
+            <dl className="mb-6 rounded-input border border-line px-5 text-left">
+                {email && <Row label="Account">{email}</Row>}
+                <Row label="Deletion date">
+                    <time dateTime={pendingDeletion.deleteOn}>{formatDate(pendingDeletion.deleteOn)}</time>
+                    {` · ${daysText} left`}
+                </Row>
+                <Row label="Chatbots after restore">
+                    <span className="rounded-pill border border-current/30 bg-warning-tint px-1.5 py-0.5 font-mono text-eyebrow text-warning-text uppercase">
+                        Paused
+                    </span>
+                </Row>
+            </dl>
             <div className="space-y-4">
-                <StatusBox
-                    tone="danger"
-                    label="Permanent deletion on"
-                    value={
-                        <time dateTime={pendingDeletion.deleteOn}>{formatDate(pendingDeletion.deleteOn)}</time>
-                    }
-                    aside={<span className="text-c2 text-ink">{daysText} left</span>}
-                />
-                <ButtonLink href={pendingDeletion.restoreUrl}>Restore account</ButtonLink>
+                <Button onClick={restore}>Restore account</Button>
                 <ButtonLink href={signOutUrl} variant="secondary">
-                    Sign out
+                    Not now, sign out
                 </ButtonLink>
             </div>
-            <p className="mt-6 text-p3 text-ink-secondary">
-                If you sign out, the account stays pending deletion and can still be restored within {daysText}.
-            </p>
             <FooterLink text="Questions?" href={SUPPORT_URL}>
                 Contact support
             </FooterLink>

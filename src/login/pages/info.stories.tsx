@@ -16,7 +16,17 @@ export const EmailVerified: Story = {
         kcContext: {
             auth: { attemptedUsername: MOCK_EMAIL },
             message: { type: "success", summary: "Your email address has been verified." },
-            client: { baseUrl: "#app" }
+        }
+    }
+};
+
+/** Keycloak sends the title as a key; it must show as "Account Updated" */
+export const AccountUpdated: Story = {
+    args: {
+        kcContext: {
+            messageHeader: "accountUpdatedTitle",
+            message: { type: "success", summary: "Your account has been updated." },
+            skipLink: true
         }
     }
 };

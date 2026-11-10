@@ -4,21 +4,34 @@ import { cn } from "../lib/cn";
 
 type Tone = "neutral" | "success" | "warning" | "danger";
 
-const boxTones: Record<Tone, { box: string; label: string; value: string; icon: string }> = {
-    neutral: { box: "border-line bg-subtle", label: "text-ink-secondary", value: "text-ink", icon: "" },
+const boxTones: Record<
+    Tone,
+    { box: string; label: string; value: string; icon: string }
+> = {
+    neutral: {
+        box: "glass-panel border-line-glass",
+        label: "text-ink-secondary",
+        value: "text-ink",
+        icon: ""
+    },
     success: {
-        box: "border-success-line bg-success-tint",
+        box: "glass-panel border-success-line bg-success-tint/50",
         label: "text-ink-secondary",
         value: "text-success-text",
         icon: ""
     },
     warning: {
-        box: "border-warning-line bg-warning-tint",
+        box: "glass-panel border-warning-line bg-warning-tint/55",
         label: "text-warning-text",
         value: "text-warning-text",
         icon: "bg-warning-tint text-warning-text"
     },
-    danger: { box: "border-danger-line bg-danger-tint", label: "text-ink-secondary", value: "text-ink", icon: "" }
+    danger: {
+        box: "glass-panel border-danger-line bg-danger-tint/50",
+        label: "text-ink-secondary",
+        value: "text-ink",
+        icon: ""
+    }
 };
 
 /**
@@ -37,12 +50,18 @@ export function StatusBox(props: {
 
     return (
         <div
-            className={cn("flex items-center gap-3 rounded-input border px-4 py-3 text-left sm:gap-4 sm:px-5 sm:py-4", t.box)}
+            className={cn(
+                "flex items-center gap-3 rounded-input border px-4 py-3 text-left sm:gap-4 sm:px-5 sm:py-4",
+                t.box
+            )}
         >
             {Icon && (
                 <span
                     aria-hidden
-                    className={cn("flex size-10 shrink-0 items-center justify-center rounded-pill bg-card/60", t.icon)}
+                    className={cn(
+                        "flex size-10 shrink-0 items-center justify-center rounded-pill bg-card/60",
+                        t.icon
+                    )}
                 >
                     <Icon className="size-5" />
                 </span>
@@ -59,7 +78,7 @@ export function StatusBox(props: {
 /** Grey box with an info icon, a bold title and one line of text. */
 export function Callout(props: { title: string; children: ReactNode }) {
     return (
-        <div className="flex gap-3 rounded-input border border-line bg-subtle px-4 py-3 text-left sm:gap-4 sm:px-5 sm:py-4">
+        <div className="glass-panel flex gap-3 rounded-input border border-line-glass px-4 py-3 text-left sm:gap-4 sm:px-5 sm:py-4">
             <Info aria-hidden className="mt-0.5 size-5 shrink-0 text-ink" />
             <div>
                 <p className="text-p4 font-bold text-ink">{props.title}</p>

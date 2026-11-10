@@ -10,6 +10,7 @@ import { PageHeader } from "../components/page-header";
 import { PageShell } from "../components/page-shell";
 import { ResendCountdown } from "../components/resend-countdown";
 import { StatusBox } from "../components/status-box";
+import { getFlag, SIGNED_UP } from "../lib/session-flags";
 
 type Props = { kcContext: Extract<KcContext, { pageId: "login-verify-email.ftl" }>; i18n: I18n };
 
@@ -33,7 +34,16 @@ function wasResent() {
     }
 }
 
-/** login-verify-email.ftl: "Verify Email", or "New Link Sent" right after a resend. */
+/** "15 minutes", "1 hour", "24 hours". */
+function formatLifespan(minutes: number) {
+    const [value, unit] = minutes % 60 === 0 ? [minutes / 60, "hour"] : [minutes, "minute"];
+    return `${value} ${unit}${value === 1 ? "" : "s"}`;
+}
+
+/**
+ * login-verify-email.ftl: "Verify Email" after sign up, "Verify Your Email First"
+ * after signing in, or "New Link Sent" right after a resend.
+ */
 export default function LoginVerifyEmail(props: Props) {
     const { kcContext } = props;
     const { url, user, message } = kcContext;
@@ -52,13 +62,64 @@ export default function LoginVerifyEmail(props: Props) {
     // warning. The page already says that, so only show other messages.
     const extraMessage = message?.type === "warning" ? undefined : message;
 
+    // No note from the sign-up form: the user came here by signing in
+    const [fromSignIn] = useState(() => getFlag(SIGNED_UP) !== "1");
+
+    if (fromSignIn && !resent) {
+        const minutes = (kcContext.realm as { verifyEmailActionTokenLifespanMinutes?: number }).verifyEmailActionTokenLifespanMinutes;
+        return (
+            <PageShell kcContext={kcContext} title="Verify Your Email First">
+                <AuthCard>
+                    <PageHeader
+                        icon={Mail}
+                        iconTone="inverse"
+                        title="Verify Your Email First"
+                        subtitle="This account hasn’t been verified yet, so you can’t sign in. Open the link we sent, or get a new one."
+                    />
+                    <FormMessage message={extraMessage} />
+                    <div className="space-y-4">
+                        {user?.email && (
+                            <StatusBox
+                                label="Unverified email"
+                                value={user.email}
+                                aside={
+                                    <a
+                                        href={url.loginRestartFlowUrl}
+                                        className="flex items-center gap-2 text-p4 text-ink hover:underline"
+                                    >
+                                        <SquarePen aria-hidden className="size-4" />
+                                        Change email
+                                    </a>
+                                }
+                            />
+                        )}
+                        <ButtonLink href={url.loginAction} onClick={markResent}>
+                            Resend verification email
+                        </ButtonLink>
+                        <ButtonLink href={url.loginRestartFlowUrl} variant="secondary">
+                            Back to sign in
+                        </ButtonLink>
+                    </div>
+                    {minutes && (
+                        <p className="mt-6 text-p3 text-ink-secondary">
+                            Verification links expire after {formatLifespan(minutes)}.
+                        </p>
+                    )}
+                    <FooterLink text="Wrong account?" href={url.loginRestartFlowUrl}>
+                        Use a different email
+                    </FooterLink>
+                </AuthCard>
+            </PageShell>
+        );
+    }
+
     return (
         <PageShell kcContext={kcContext} title={resent ? "New Link Sent" : "Verify Email"}>
             <AuthCard>
                 {resent ? (
                     <PageHeader
                         title="New Link Sent"
-                        subtitle="We sent a fresh verification link to your inbox. Older links no longer work."
+                        subtitle="We sent a fresh verification link to your inbox."
                     />
                 ) : (
                     <PageHeader

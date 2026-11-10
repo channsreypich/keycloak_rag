@@ -15,7 +15,7 @@ export function VerifyLinkExpired(props: { email?: string; signInUrl: string }) 
         <AuthCard>
             <PageHeader
                 title="Link Expired"
-                subtitle="For your security, verification links expire after a short time. Request a new one below."
+                subtitle="For your security, verification links expire after a short time. Sign in and we’ll send you a new one."
             />
             <div className="space-y-6">
                 <TextField
@@ -32,7 +32,7 @@ export function VerifyLinkExpired(props: { email?: string; signInUrl: string }) 
                   For now this goes to Sign in: after signing in, Keycloak
                   sends a new verification email by itself.
                 */}
-                <ButtonLink href={signInUrl}>Resend link</ButtonLink>
+                <ButtonLink href={signInUrl}>Sign in to get a new link</ButtonLink>
             </div>
             <FooterLink text="Wrong account?" href={signInUrl}>
                 Back to Sign in

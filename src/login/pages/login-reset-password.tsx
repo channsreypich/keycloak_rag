@@ -10,8 +10,8 @@ import { PageHeader } from "../components/page-header";
 import { PageShell } from "../components/page-shell";
 import { TextField } from "../components/text-field";
 import { ADMIN_CLIENT_ID } from "../lib/constants";
-import { loginActionUrl } from "../lib/kc-urls";
-import { getEmailError } from "../lib/validation";
+import { appSignUpUrl, loginActionUrl } from "../lib/kc-urls";
+import { getEmailError, getEmailTypingError } from "../lib/validation";
 import { ResetLinkExpired } from "./link-expired";
 
 type Props = { kcContext: Extract<KcContext, { pageId: "login-reset-password.ftl" }>; i18n: I18n };
@@ -41,7 +41,7 @@ export default function LoginResetPassword(props: Props) {
 
     // Keycloak calls this field "username"; people know it as their email
     const serverError = messagesPerField.existsError("username") ? "Please enter your email." : undefined;
-    const emailError = error ?? serverError;
+    const emailError = error ?? getEmailTypingError(email) ?? serverError;
 
     const onSubmit = (event: FormEvent<HTMLFormElement>) => {
         const next = getEmailError(email);
@@ -72,7 +72,7 @@ export default function LoginResetPassword(props: Props) {
                         autoComplete="email"
                         autoFocus
                         required
-                        placeholder="you@company.com"
+                        placeholder="Enter your email"
                         value={email}
                         onChange={e => {
                             setEmail(e.target.value);
@@ -80,8 +80,8 @@ export default function LoginResetPassword(props: Props) {
                         }}
                         error={emailError}
                     />
-                    <Button type="submit" disabled={isSubmitting}>
-                        {isSubmitting ? "Sending…" : "Send reset link"}
+                    <Button type="submit" disabled={isSubmitting || !email.trim()}>
+                        {isSubmitting ? "Sending reset link…" : "Send reset link"}
                     </Button>
                 </form>
                 {/* Admin accounts are made by the team, so admins get "Back to sign in" instead of "Sign up" */}
@@ -90,7 +90,7 @@ export default function LoginResetPassword(props: Props) {
                         Back to sign in
                     </FooterLink>
                 ) : (
-                    <FooterLink text="Don’t have an account?" href={loginActionUrl(url.loginUrl, "registration")}>
+                    <FooterLink text="Don’t have an account?" href={appSignUpUrl(kcContext.client) ?? loginActionUrl(url.loginUrl, "registration")}>
                         Sign up
                     </FooterLink>
                 )}
