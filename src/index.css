@@ -68,7 +68,7 @@
   /* auth: lavender page with soft blobs, see-through cards */
   --bg-auth: #f2f1f8;
   --auth-blob: #dedaf8;
-  --bg-glass: rgb(255 255 255 / 0.7);
+  --bg-glass: rgb(255 255 255 / 0.5);
   --border-glass: rgb(255 255 255 / 0.9);
   /* auth: status borders for the info boxes */
   --success-line: #a9e6cb;
@@ -269,6 +269,257 @@
     *::after {
       animation-duration: 0.01ms !important;
       transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Water-drop ripple on buttons (added by components/button.tsx)
+   ------------------------------------------------------------------------ */
+@layer components {
+  .ripple {
+    position: absolute;
+    z-index: -1;
+    border-radius: 9999px;
+    pointer-events: none;
+    background: radial-gradient(circle, currentColor 0%, currentColor 45%, transparent 70%);
+    opacity: 0.22;
+    transform: translate(-50%, -50%) scale(0);
+    animation: ripple 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  @keyframes ripple {
+    to {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 0;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Motion effects (see components/liquid-background, link-preview, glass-light)
+   ------------------------------------------------------------------------ */
+@layer components {
+  /* Background (components/liquid-background): frosted glass sheet over the
+     blobs, and water ripples where the background is clicked */
+  .bg-glass-sheet {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(135deg, rgb(255 255 255 / 0.28), rgb(255 255 255 / 0.04) 45%, rgb(255 255 255 / 0.18)),
+      radial-gradient(120% 80% at 50% 0%, rgb(255 255 255 / 0.25), transparent 60%);
+    -webkit-backdrop-filter: blur(28px) saturate(1.35);
+    backdrop-filter: blur(28px) saturate(1.35);
+  }
+
+  /* A glass lens ring: blurs what is under it, with a soft glowing rim */
+  .bg-ripple {
+    position: absolute;
+    border-radius: 9999px;
+    pointer-events: none;
+    border: 2px solid rgb(255 255 255 / 0.85);
+    background: radial-gradient(
+      circle,
+      rgb(255 255 255 / 0.06) 40%,
+      rgb(255 255 255 / 0.3) 68%,
+      transparent 72%
+    );
+    -webkit-backdrop-filter: blur(8px) saturate(1.4);
+    backdrop-filter: blur(8px) saturate(1.4);
+    filter: blur(0.8px);
+    box-shadow:
+      0 0 0 1px rgb(75 63 209 / 0.12),
+      inset 0 0 36px rgb(255 255 255 / 0.6),
+      0 0 30px rgb(255 255 255 / 0.55);
+  }
+
+  /* Inputs (text fields, OTP boxes): frosted see-through glass with a bright
+     glass edge. Black border on focus and red on error, as before. */
+  .glass-input {
+    background-color: rgb(255 255 255 / 0.4);
+    -webkit-backdrop-filter: blur(12px) saturate(1.3);
+    backdrop-filter: blur(12px) saturate(1.3);
+  }
+
+  .glass-input:hover {
+    background-color: rgb(255 255 255 / 0.55);
+  }
+
+  .glass-input:focus {
+    background-color: rgb(255 255 255 / 0.75);
+  }
+
+  /* Buttons: a glass shine sweeps across from left to right on hover */
+  .btn-glass {
+    --sheen: rgb(255 255 255 / 0.22);
+  }
+
+  /* The shine is a diagonal band on a background 3x the button's size.
+     Sliding the background from bottom-right to top-left moves the band
+     across the button from its top-left corner to its bottom-right corner. */
+  .btn-glass::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      135deg,
+      transparent 36%,
+      var(--sheen) 46%,
+      rgb(255 255 255 / 0.1) 54%,
+      transparent 64%
+    );
+    background-size: 300% 300%;
+    /* Frosted: the band is soft, like light through glass */
+    filter: blur(8px);
+    background-position: 100% 100%;
+    background-repeat: no-repeat;
+  }
+
+  @media (hover: hover) {
+    .btn-glass:not(:disabled):hover::after {
+      animation: btn-sweep 1.6s cubic-bezier(0.45, 0, 0.25, 1) forwards;
+    }
+  }
+
+  @keyframes btn-sweep {
+    from {
+      background-position: 100% 100%;
+    }
+    to {
+      background-position: 0% 0%;
+    }
+  }
+
+  /* Link page: dashes flowing from the provider to RAGStudio */
+  .dash-flow {
+    background: repeating-linear-gradient(90deg, var(--ink-muted) 0 6px, transparent 6px 12px);
+    background-size: 12px 2px;
+    animation: dash-flow 0.7s linear infinite;
+  }
+
+  @keyframes dash-flow {
+    to {
+      background-position: 12px 0;
+    }
+  }
+
+  /* Glass boxes inside the card (info boxes, status boxes, the QR panel):
+     frosted see-through glass with a bright top edge, and the same mouse
+     light as the card while hovered (components/glass-light useGlassPanels) */
+  .glass-panel {
+    position: relative;
+    isolation: isolate;
+    background-color: rgb(255 255 255 / 0.35);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    backdrop-filter: blur(16px) saturate(1.4);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.85),
+      inset 0 -1px 0 rgb(255 255 255 / 0.25),
+      0 10px 30px -18px rgb(75 63 209 / 0.25);
+  }
+
+  .glass-panel::before,
+  .glass-panel::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+
+  .glass-panel::before {
+    inset: 0;
+    background: radial-gradient(
+      18rem circle at var(--mx, 50%) var(--my, 0%),
+      rgb(255 255 255 / 0.7),
+      transparent 50%
+    );
+  }
+
+  .glass-panel::after {
+    inset: -1px;
+    padding: 1.5px;
+    background: radial-gradient(
+      12rem circle at var(--mx, 50%) var(--my, 0%),
+      rgb(75 63 209 / 0.45),
+      rgb(255 255 255 / 0.7) 40%,
+      transparent 70%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .glass-panel:hover::before,
+    .glass-panel:hover::after {
+      opacity: 1;
+    }
+  }
+
+  /* Light on glass: sheen that follows the mouse + glowing edge near it */
+  .glass-light {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .glass-light[data-on] {
+    opacity: 1;
+  }
+
+  .glass-light::before,
+  .glass-light::after {
+    content: "";
+    position: absolute;
+    border-radius: inherit;
+  }
+
+  .glass-light::before {
+    inset: 0;
+    background: radial-gradient(
+      28rem circle at var(--mx, 50%) var(--my, 0%),
+      rgb(255 255 255 / 0.6),
+      transparent 45%
+    );
+  }
+
+  .glass-light::after {
+    inset: -1px;
+    padding: 1.5px;
+    background: radial-gradient(
+      16rem circle at var(--mx, 50%) var(--my, 0%),
+      rgb(75 63 209 / 0.5),
+      rgb(255 255 255 / 0.6) 40%,
+      transparent 70%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dash-flow {
+      animation: none;
+    }
+
+    .btn-glass:not(:disabled):hover::after {
+      animation: none;
     }
   }
 }

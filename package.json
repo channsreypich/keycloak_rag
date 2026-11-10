@@ -17,7 +17,9 @@
     "dependencies": {
         "@fontsource/gabarito": "^5.3.0",
         "@fontsource/geist-mono": "^5.3.0",
+        "@gsap/react": "^2.1.2",
         "@tailwindcss/vite": "^4.3.3",
+        "gsap": "^3.15.1",
         "keycloakify": "^11.16.0",
         "lucide-react": "^1.61.0",
         "react": "^18.2.0",

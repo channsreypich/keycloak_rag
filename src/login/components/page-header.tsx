@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "../lib/cn";
+import { SuccessMark } from "./success-mark";
 
 type Tone = "accent" | "inverse" | "success" | "danger";
 
@@ -37,7 +38,9 @@ export function PageHeader(props: {
                 align === "center" ? "text-center" : "text-left"
             )}
         >
-            {Icon && (
+            {/* Success icons get the drop + check animation */}
+            {Icon && iconTone === "success" && <SuccessMark />}
+            {Icon && iconTone !== "success" && (
                 <div
                     aria-hidden
                     className={cn(

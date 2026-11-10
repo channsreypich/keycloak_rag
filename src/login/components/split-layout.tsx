@@ -1,7 +1,9 @@
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import logo from "../assets/logo.png";
-import preview from "../assets/auth-preview.png";
+import preview from "../assets/image_auth.svg";
 import { cn } from "../lib/cn";
+import { useEntrance } from "../lib/motion";
+import { GlassLight } from "./glass-light";
 
 export function Logo(props: { className?: string }) {
     return (
@@ -9,7 +11,10 @@ export function Logo(props: { className?: string }) {
             src={logo}
             alt="RAGStudio"
             draggable={false}
-            className={cn("pointer-events-none h-9 w-auto select-none sm:h-10", props.className)}
+            className={cn(
+                "pointer-events-none h-9 w-auto select-none sm:h-10",
+                props.className
+            )}
         />
     );
 }
@@ -32,8 +37,8 @@ function BrandPanel() {
                 </span>
             </h2>
             <p className="mt-3 max-w-md text-p3 text-ink-body tall:mt-4 xl:tall:text-p1">
-                Upload your documents, test in the playground, and publish — every answer shows exactly where it
-                came from.
+                Upload your documents, test in the playground, and publish — every answer
+                shows exactly where it came from.
             </p>
             {/* The picture fills whatever height is left and is cropped, so the
                 form (not the picture) decides how tall the card is */}
@@ -58,16 +63,23 @@ function BrandPanel() {
  */
 export function SplitLayout(props: { panelSide: "left" | "right"; children: ReactNode }) {
     const { panelSide, children } = props;
+    const content = useRef<HTMLDivElement>(null);
+    const card = useEntrance(content);
 
     return (
         <main className="flex min-h-dvh items-center justify-center px-4 py-4 tall:py-6 tall:sm:py-10">
             {/* One column below lg: same width as AuthCard so the form stays centred.
                 From lg the card fills the screen height (minus main's padding, capped)
                 so Sign in and Sign up are the same size whatever the form length */}
-            <div className="grid w-full max-w-lg gap-4 rounded-card-sm border border-line-glass bg-glass p-2 shadow-auth backdrop-blur-xl sm:rounded-card sm:p-3 lg:min-h-[min(calc(100dvh-2rem),60rem)] lg:max-w-5xl lg:grid-cols-2 xl:max-w-6xl tall:lg:min-h-[min(calc(100dvh-5rem),60rem)]">
+            <div
+                ref={card}
+                data-card
+                className="relative isolate grid w-full max-w-lg gap-4 rounded-card-sm border border-line-glass bg-glass p-2 shadow-auth backdrop-blur-xl sm:rounded-card sm:p-3 lg:min-h-[min(calc(100dvh-2rem),60rem)] lg:max-w-5xl lg:grid-cols-2 xl:max-w-6xl tall:lg:min-h-[min(calc(100dvh-5rem),60rem)]"
+            >
+                <GlassLight />
                 {panelSide === "left" && <BrandPanel />}
                 <section className="flex min-w-0 items-center justify-center px-3 py-6 sm:px-7 tall:sm:py-8 lg:px-10 tall:lg:py-12">
-                    <div className="w-full min-w-0 max-w-md">
+                    <div ref={content} className="w-full min-w-0 max-w-md">
                         <Logo className="mb-6 -ml-1 lg:hidden" />
                         {children}
                     </div>

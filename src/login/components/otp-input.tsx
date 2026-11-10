@@ -73,8 +73,8 @@ export function OtpInput(props: {
                     aria-invalid={error ? true : undefined}
                     className={cn(
                         // Boxes shrink to fit narrow phones instead of overflowing the card
-                        "aspect-square w-full max-w-14 min-w-0 flex-1 rounded-small border bg-card text-center text-s1 font-semibold text-ink outline-none transition-colors focus:border-2 focus:border-line-strong sm:text-h4",
-                        error ? "border-danger" : "border-line"
+                        "glass-input aspect-square w-full max-w-14 min-w-0 flex-1 rounded-small border text-center text-s1 font-semibold text-ink outline-none transition-colors focus:border-2 focus:border-ink/35 sm:text-h4",
+                        error ? "border-danger" : "border-line-glass"
                     )}
                 />
             ))}

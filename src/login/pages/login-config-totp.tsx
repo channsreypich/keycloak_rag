@@ -36,7 +36,7 @@ export default function LoginConfigTotp(props: Props) {
     // Keycloak reloads the page after a wrong code, so keep the code it refused in the boxes
     const [sentCode] = useState(() => {
         const sent = takeFlag(CODE_SENT);
-        return messagesPerField.existsError("totp") ? (sent ?? "") : "";
+        return messagesPerField.existsError("totp") ? sent ?? "" : "";
     });
     const [code, setCode] = useState(sentCode);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -84,7 +84,7 @@ export default function LoginConfigTotp(props: Props) {
                         You can’t access the Admin console until setup is complete.
                     </Callout>
 
-                    <div className="flex flex-col items-center gap-5 rounded-input border border-line bg-subtle p-4 text-left sm:flex-row sm:p-5">
+                    <div className="flex flex-col items-center gap-5 glass-panel rounded-input border border-line-glass p-4 text-left sm:flex-row sm:p-5">
                         <img
                             src={`data:image/png;base64,${totp.totpSecretQrCode}`}
                             alt="QR code for your authenticator app"
@@ -94,7 +94,7 @@ export default function LoginConfigTotp(props: Props) {
                         <ol className="w-full min-w-0 space-y-3">
                             <Step n={1}>Scan the QR code with {AUTHENTICATOR_APPS}.</Step>
                             <Step n={2}>Or enter this key manually:</Step>
-                            <li className="flex items-center justify-between gap-2 rounded-small border border-line bg-card py-1.5 pr-1.5 pl-3">
+                            <li className="flex items-center justify-between gap-2 rounded-small border border-line-glass bg-card/70 py-1.5 pr-1.5 pl-3">
                                 <code
                                     id="kc-totp-secret-key"
                                     className="min-w-0 font-mono text-c2 font-medium tracking-wide wrap-break-word text-ink"
