@@ -10,10 +10,12 @@ export function OtpInput(props: {
     labelId: string;
     length?: number;
     error?: boolean;
+    /** Code to show at first, for example a wrong code the user sent */
+    initialCode?: string;
     onChange?: (code: string) => void;
 }) {
-    const { name, labelId, length = 6, error, onChange } = props;
-    const [digits, setDigits] = useState<string[]>(() => Array(length).fill(""));
+    const { name, labelId, length = 6, error, initialCode = "", onChange } = props;
+    const [digits, setDigits] = useState<string[]>(() => Array.from({ length }, (_, i) => initialCode[i] ?? ""));
     const refs = useRef<Array<HTMLInputElement | null>>([]);
 
     const update = (next: string[]) => {
@@ -55,9 +57,14 @@ export function OtpInput(props: {
                         refs.current[index] = el;
                     }}
                     value={digit}
-                    onChange={e => setDigit(index, e.target.value)}
+                    // onInput, not onChange: typing the same digit again changes nothing,
+                    // so onChange would not run and the cursor would not move to the next box
+                    onInput={e => setDigit(index, e.currentTarget.value)}
+                    onChange={() => {}}
                     onKeyDown={e => onKeyDown(index, e)}
                     onPaste={onPaste}
+                    // Each box holds one digit, so select it: typing then replaces it
+                    onFocus={e => e.target.select()}
                     inputMode="numeric"
                     autoComplete={index === 0 ? "one-time-code" : "off"}
                     autoFocus={index === 0}

@@ -11,6 +11,7 @@ import { PageHeader } from "../components/page-header";
 import { PageShell } from "../components/page-shell";
 import { Callout } from "../components/status-box";
 import { AUTHENTICATOR_APPS } from "../lib/constants";
+import { CODE_SENT, setFlag, takeFlag } from "../lib/session-flags";
 import { focusFirstCodeBox, getCodeError } from "../lib/validation";
 
 type Props = { kcContext: Extract<KcContext, { pageId: "login-config-totp.ftl" }>; i18n: I18n };
@@ -32,7 +33,12 @@ export default function LoginConfigTotp(props: Props) {
     const { url, totp, mode, messagesPerField, message } = kcContext;
 
     const [copied, setCopied] = useState(false);
-    const [code, setCode] = useState("");
+    // Keycloak reloads the page after a wrong code, so keep the code it refused in the boxes
+    const [sentCode] = useState(() => {
+        const sent = takeFlag(CODE_SENT);
+        return messagesPerField.existsError("totp") ? (sent ?? "") : "";
+    });
+    const [code, setCode] = useState(sentCode);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const digits = totp.policy.digits;
     // Missing digits error, shown after the user presses "Verify"
@@ -48,6 +54,7 @@ export default function LoginConfigTotp(props: Props) {
             focusFirstCodeBox("totp-label");
             return;
         }
+        setFlag(CODE_SENT, code);
         setIsSubmitting(true);
     };
 
@@ -114,6 +121,7 @@ export default function LoginConfigTotp(props: Props) {
                             name="totp"
                             labelId="totp-label"
                             length={digits}
+                            initialCode={sentCode}
                             error={!!codeError}
                             onChange={value => {
                                 setCode(value);

@@ -10,6 +10,7 @@ import { PageHeader } from "../components/page-header";
 import { PageShell } from "../components/page-shell";
 import { FieldError } from "../components/text-field";
 import { SUPPORT_URL } from "../lib/constants";
+import { CODE_SENT, setFlag, takeFlag } from "../lib/session-flags";
 import { focusFirstCodeBox, getCodeError } from "../lib/validation";
 
 type Props = { kcContext: Extract<KcContext, { pageId: "login-otp.ftl" }>; i18n: I18n };
@@ -23,7 +24,12 @@ export default function LoginOtp(props: Props) {
     const credentials = otpLogin.userOtpCredentials;
 
     const selectedId = otpLogin.selectedCredentialId ?? credentials[0]?.id;
-    const [code, setCode] = useState("");
+    // Keycloak reloads the page after a wrong code, so keep the code it refused in the boxes
+    const [sentCode] = useState(() => {
+        const sent = takeFlag(CODE_SENT);
+        return messagesPerField.existsError("totp") ? (sent ?? "") : "";
+    });
+    const [code, setCode] = useState(sentCode);
     const [isSubmitting, setIsSubmitting] = useState(false);
     // Missing digits error, shown after the user presses "Verify"
     const [error, setError] = useState<string>();
@@ -41,6 +47,7 @@ export default function LoginOtp(props: Props) {
             focusFirstCodeBox("otp-label");
             return;
         }
+        setFlag(CODE_SENT, code);
         setIsSubmitting(true);
     };
 
@@ -62,6 +69,7 @@ export default function LoginOtp(props: Props) {
                     <OtpInput
                         name="otp"
                         labelId="otp-label"
+                        initialCode={sentCode}
                         error={!!codeError}
                         onChange={value => {
                             setCode(value);

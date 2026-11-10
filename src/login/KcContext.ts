@@ -23,7 +23,7 @@ export type KcContextExtensionPerPage = {
             suspendedAt: string;
         };
         /**
-         * Shown on the "Account Pending Deletion" screen (the user asked to
+         * Shown on the "Restore your account?" screen (the user asked to
          * delete their account and it is waiting out the grace period).
          * TODO(backend): like `suspension`, plain Keycloak does not send this.
          */
@@ -42,7 +42,11 @@ export type KcContextExtensionPerPage = {
         pendingDeletion?: {
             /** ISO date of the permanent deletion, e.g. "2026-10-17" */
             deleteOn: string;
-            /** Where "Restore account" goes (cancels the deletion) */
+            /**
+             * Where "Restore account" goes. The backend cancels the deletion there, then
+             * finishes the sign-in, so the user lands on their dashboard.
+             * If it fails, it shows this page again with a message.
+             */
             restoreUrl: string;
         };
     };

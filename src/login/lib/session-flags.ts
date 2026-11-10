@@ -11,6 +11,10 @@ export const PASSWORD_SENT = "password-sent";
 export const SIGN_IN_SENT = "sign-in-sent";
 /** Holds the provider name ("Google") while the user links a Google/GitHub account. */
 export const LINKING_PROVIDER = "linking-provider";
+/** Holds the code while the MFA form is being sent, so a wrong code stays in the boxes. */
+export const CODE_SENT = "code-sent";
+/** Holds the email from the "Confirm validity of e-mail" page for the "Email Verified" page. */
+export const VERIFYING_EMAIL = "verifying-email";
 
 export function setFlag(name: string, value = "1") {
     try {
@@ -26,6 +30,13 @@ export function getFlag(name: string): string | null {
     } catch {
         return null;
     }
+}
+
+/** Reads a note and removes it, so it can only be used once. */
+export function takeFlag(name: string): string | null {
+    const value = getFlag(name);
+    clearFlag(name);
+    return value;
 }
 
 export function clearFlag(name: string) {

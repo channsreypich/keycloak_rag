@@ -134,6 +134,21 @@ function overridesFor(pageId: PageId, state: string | null): object {
                     .slice(0, 10);
                 return {
                     ...base,
+                    auth: { attemptedUsername: email },
+                    pendingDeletion: { deleteOn, restoreUrl: DASHBOARD_URL }
+                };
+            }
+            if (state === "restore-failed") {
+                const deleteOn = new Date(Date.now() + 7 * 86_400_000)
+                    .toISOString()
+                    .slice(0, 10);
+                return {
+                    ...base,
+                    message: {
+                        type: "error" as const,
+                        summary: "We couldn't restore your account. Please try again."
+                    },
+                    auth: { attemptedUsername: email },
                     pendingDeletion: { deleteOn, restoreUrl: DASHBOARD_URL }
                 };
             }

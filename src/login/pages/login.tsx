@@ -37,7 +37,7 @@ const IDP_REAUTH_FORM = "idp-username-password-form-display-name";
  * login.ftl. Keycloak also uses this page for two other screens:
  * - account disabled  → "Account Suspended"
  * - reset email sent  → "Check Your Email"
- * And, when the backend sends `pendingDeletion`, "Account Pending Deletion".
+ * And, when the backend sends `pendingDeletion`, "Restore your account?".
  */
 export default function Login(props: Props) {
     const { kcContext, i18n } = props;
@@ -48,8 +48,13 @@ export default function Login(props: Props) {
 
     if (kcContext.pendingDeletion) {
         return (
-            <PageShell kcContext={kcContext} title="Account Pending Deletion">
-                <AccountPendingDeletion signOutUrl={url.loginRestartFlowUrl} pendingDeletion={kcContext.pendingDeletion} />
+            <PageShell kcContext={kcContext} title="Restore your account">
+                <AccountPendingDeletion
+                    email={email}
+                    message={message}
+                    signOutUrl={url.loginRestartFlowUrl}
+                    pendingDeletion={kcContext.pendingDeletion}
+                />
             </PageShell>
         );
     }
@@ -165,7 +170,11 @@ function SignInForm(props: Props) {
                 align="left"
                 eyebrow={isAdmin ? "Admin console" : undefined}
                 title={isAdmin ? "Admin sign-in" : "Sign In"}
-                subtitle="Welcome back. Sign in to manage your chatbots and knowledge bases."
+                subtitle={
+                    isAdmin
+                        ? "Welcome back. Sign in to manage users, models and chatbots."
+                        : "Welcome back. Sign in to manage your chatbots and knowledge bases."
+                }
             />
 
             {!isAdmin && !locked && <SocialButtons providers={social?.providers} dividerText="or sign in with email" />}
@@ -183,7 +192,9 @@ function SignInForm(props: Props) {
                             type="text"
                             inputMode="email"
                             autoComplete="username"
-                            autoFocus
+                            // After a wrong password the cursor goes to the password box.
+                            // A box with the cursor is not red, so this also keeps the email box red.
+                            autoFocus={!credentialsError || locked}
                             placeholder={isAdmin ? "you@company.com" : "Enter your username or email"}
                             plainLabel={isAdmin}
                             value={username}
@@ -203,6 +214,7 @@ function SignInForm(props: Props) {
                         label="Password"
                         plainLabel={isAdmin}
                         autoComplete="current-password"
+                        autoFocus={!!credentialsError && !locked}
                         placeholder="Enter your password"
                         value={password}
                         onChange={e => {

@@ -11,7 +11,7 @@ import { StatusBox } from "../components/status-box";
 import { SuccessToast } from "../components/success-toast";
 import { GET_STARTED_PATH } from "../lib/constants";
 import { appSignInUrl } from "../lib/kc-urls";
-import { clearFlag, getFlag, PASSWORD_SENT } from "../lib/session-flags";
+import { clearFlag, getFlag, PASSWORD_SENT, setFlag, VERIFYING_EMAIL } from "../lib/session-flags";
 
 type Props = { kcContext: Extract<KcContext, { pageId: "info.ftl" }>; i18n: I18n };
 
@@ -44,15 +44,24 @@ export default function Info(props: Props) {
     // True when this page follows the "Reset Password" form
     const [isPasswordReset] = useState(() => isAccountUpdated && getFlag(PASSWORD_SENT) === "1");
 
+    // "Email Verified" gets no email from Keycloak in a different browser, but the
+    // "Confirm validity of e-mail address …" page before it names the address.
+    const [verifiedEmail] = useState(() => {
+        const named = actionUri ? message.summary.match(/[^\s@]+@[^\s@]+\.[^\s@.]+/)?.[0] : undefined;
+        if (named) setFlag(VERIFYING_EMAIL, named);
+        return getFlag(VERIFYING_EMAIL);
+    });
+
     useEffect(() => {
         clearFlag(PASSWORD_SENT);
+        if (!actionUri) clearFlag(VERIFYING_EMAIL);
         if (!redirectUrl) return;
         const timer = setTimeout(() => window.location.replace(redirectUrl), REDIRECT_DELAY_MS);
         return () => clearTimeout(timer);
     }, [redirectUrl]);
 
     if (isEmailVerified) {
-        const email = auth?.attemptedUsername;
+        const email = auth?.attemptedUsername ?? verifiedEmail;
         return (
             <PageShell kcContext={kcContext} title="Email Verified">
                 <AuthCard>
