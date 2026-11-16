@@ -404,6 +404,22 @@
     }
   }
 
+  /* Sign in / Sign up brand panel: the dashboard picture gently floats */
+  .float {
+    animation: float 3s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-12px);
+    }
+  }
+
   /* Glass boxes inside the card (info boxes, status boxes, the QR panel):
      frosted see-through glass with a bright top edge, and the same mouse
      light as the card while hovered (components/glass-light useGlassPanels) */
@@ -514,7 +530,8 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .dash-flow {
+    .dash-flow,
+    .float {
       animation: none;
     }
 

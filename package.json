@@ -10,6 +10,7 @@
         "build:preview": "tsc && VITE_PREVIEW=true vite build",
         "preview": "vite preview --port 4173",
         "storybook": "storybook dev -p 6006",
+        "preview-emails": "npm run build-keycloak-theme && node scripts/preview-emails.mjs",
         "format": "prettier . --write"
     },
     "license": "MIT",
