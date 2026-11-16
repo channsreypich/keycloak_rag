@@ -49,7 +49,7 @@ function BrandPanel() {
                     // Bleeds past the right and bottom edge, like the design.
                     // No drag, right-click "Save image" or long-press menu
                     draggable={false}
-                    className="pointer-events-none absolute top-0 left-0 w-[calc(100%+4rem)] max-w-none select-none"
+                    className="pointer-events-none float absolute top-0 left-0 w-[calc(100%+4rem)] max-w-none select-none"
                 />
             </div>
         </aside>
