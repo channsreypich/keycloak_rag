@@ -44,10 +44,18 @@ function isGmail(email: string) {
     return GMAIL_DOMAINS.includes(email.trim().split("@")[1]?.toLowerCase() ?? "");
 }
 
+/**
+ * The Gmail username: the part before the @, without a "+tag".
+ * "me+shop@gmail.com" is the mailbox "me", so Google's rules apply to "me" only.
+ */
+function gmailName(email: string) {
+    return email.trim().split("@")[0].split("+")[0];
+}
+
 /** Error to show while the user types in Sign Up. Gmail addresses get the same message as Gmail. */
 export function getSignUpEmailTypingError(email: string) {
     const value = email.trim();
-    return isGmail(value) && /[^A-Za-z0-9.]/.test(value.split("@")[0])
+    return isGmail(value) && /[^A-Za-z0-9.]/.test(gmailName(value))
         ? "Sorry, only letters (a-z), numbers (0-9), and periods (.) are allowed."
         : getEmailTypingError(value);
 }
@@ -60,7 +68,7 @@ export function getSignUpEmailError(email: string) {
     const typingError = getSignUpEmailTypingError(value);
     if (typingError) return typingError;
 
-    const name = value.split("@")[0];
+    const name = gmailName(value);
     if (name.length < GMAIL_NAME_MIN || name.length > GMAIL_NAME_MAX) {
         return `Sorry, the part before the @ must be between ${GMAIL_NAME_MIN} and ${GMAIL_NAME_MAX} characters long.`;
     }
